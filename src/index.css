@@ -399,3 +399,13 @@
     padding-bottom: calc(env(safe-area-inset-bottom) + 16px);
   }
 }
+
+/* Hide scrollbar for horizontal scroll */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
