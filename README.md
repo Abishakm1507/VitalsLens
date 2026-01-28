@@ -81,7 +81,7 @@ src/
 1. **Clone the repository**
    ```bash
    git clone https://github.com/Abishakm1507/VitalsLens.git
-   cd remix-of-vitalslens-ai-scan
+   cd VitalsLens
    ```
 
 2. **Install dependencies**
