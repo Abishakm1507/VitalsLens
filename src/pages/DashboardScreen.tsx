@@ -3,7 +3,8 @@ import MobileFrame from "@/components/MobileFrame";
 import BottomNav from "@/components/BottomNav";
 import VitalCard from "@/components/VitalCard";
 import Button from "@/components/Button";
-import { Scan, TrendingUp, Bell } from "lucide-react";
+import TrustBadges from "@/components/TrustBadges";
+import { Scan, TrendingUp, Bell, Shield } from "lucide-react";
 
 const DashboardScreen = () => {
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ const DashboardScreen = () => {
           </div>
           <button 
             onClick={() => navigate("/alerts")}
-            className="w-10 h-10 rounded-xl bg-card flex items-center justify-center shadow-card relative"
+            className="w-10 h-10 rounded-xl bg-card flex items-center justify-center shadow-card relative btn-ripple"
           >
             <Bell className="w-5 h-5 text-muted-foreground" />
             <span className="absolute -top-1 -right-1 w-4 h-4 bg-destructive rounded-full flex items-center justify-center">
@@ -32,7 +33,7 @@ const DashboardScreen = () => {
         </div>
         
         {/* Last scan info */}
-        <div className="card-medical animate-slide-up" style={{ animationDelay: '0.1s' }}>
+        <div className="card-medical animate-slide-up hover-lift" style={{ animationDelay: '0.1s' }}>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-caption text-muted-foreground">Last scan</p>
@@ -49,36 +50,51 @@ const DashboardScreen = () => {
         <div className="space-y-4">
           <h2 className="text-card-title text-foreground">Current Vitals</h2>
           <div className="grid grid-cols-2 gap-3">
+            <div className="hover-lift">
+              <VitalCard 
+                type="heartRate" 
+                value={72} 
+                unit="BPM" 
+                status="normal"
+                onClick={() => navigate("/history")}
+              />
+            </div>
+            <div className="hover-lift">
+              <VitalCard 
+                type="spo2" 
+                value={98} 
+                unit="%" 
+                status="normal"
+                onClick={() => navigate("/history")}
+              />
+            </div>
+          </div>
+          <div className="hover-lift">
             <VitalCard 
-              type="heartRate" 
-              value={72} 
-              unit="BPM" 
-              status="normal"
-              onClick={() => navigate("/history")}
-            />
-            <VitalCard 
-              type="spo2" 
-              value={98} 
-              unit="%" 
+              type="respiratory" 
+              value={16} 
+              unit="breaths/min" 
               status="normal"
               onClick={() => navigate("/history")}
             />
           </div>
-          <VitalCard 
-            type="respiratory" 
-            value={16} 
-            unit="breaths/min" 
-            status="normal"
-            onClick={() => navigate("/history")}
-          />
         </div>
         
-        {/* Scan CTA */}
+        {/* Scan CTA - Updated to go to pre-scan */}
         <div className="animate-slide-up" style={{ animationDelay: '0.2s' }}>
-          <Button onClick={() => navigate("/scan")} fullWidth>
+          <Button onClick={() => navigate("/pre-scan")} fullWidth className="btn-ripple">
             <Scan className="w-5 h-5 mr-2" />
             Start New Scan
           </Button>
+        </div>
+        
+        {/* Trust badges - compact version */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Shield className="w-4 h-4 text-success" />
+            <span className="text-caption text-muted-foreground">Your data is protected</span>
+          </div>
+          <TrustBadges compact />
         </div>
         
         {/* Quick insights */}
@@ -92,7 +108,7 @@ const DashboardScreen = () => {
               View All
             </button>
           </div>
-          <div className="card-medical border border-success/20 bg-success/5">
+          <div className="card-medical border border-success/20 bg-success/5 hover-lift">
             <p className="text-body text-foreground leading-relaxed">
               💪 Your resting heart rate is optimal. Keep up your healthy lifestyle!
             </p>
