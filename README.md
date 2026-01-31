@@ -33,39 +33,40 @@ VitalsLens is a medical-grade health monitoring application that leverages advan
 ## 🛠️ Tech Stack
 
 ### Frontend Core
-- **React 18**: Component-based UI library.
-- **TypeScript**: Typed JavaScript for robust development.
-- **Vite**: Ultra-fast frontend build tool.
-- **React Router 6**: For seamless navigation between app screens.
+- **React 18**: Component-based UI library with efficient rendering.
+- **TypeScript**: Full type safety for health-critical logical operations.
+- **Vite**: Modern build tooling for lightning-fast development.
+- **Zustand**: Lightweight, high-performance state management for real-time vitals and flow control.
+
+### AI & Signal Processing
+- **MediaPipe FaceMesh**: Real-time facial landmark tracking and ROI selection.
+- **rPPG Engine**: Custom signal processing pipeline using Fast Fourier Transform (FFT) for heart and respiration rate extraction.
+- **TensorFlow.js**: Backend acceleration for AI-driven detection.
 
 ### Styling & UI
-- **Tailwind CSS**: Utility-first CSS framework for modern design.
-- **Shadcn UI**: High-quality, accessible UI components built on Radix UI.
-- **Lucide React**: Clean and consistent iconography.
-- **Framer Motion**: (via tailwind-animate) Smooth transitions and interactive elements.
-
-### Data & Logic
-- **TanStack Query (React Query)**: Efficient data fetching and state management.
-- **Recharts**: Responsive and interactive health data visualizations.
-- **React Hook Form & Zod**: Schema-driven form validation and management.
-- **Sonner**: High-quality toast notifications.
+- **Tailwind CSS**: Utility-first CSS for a responsive, medical-grade aesthetic.
+- **Shadcn UI**: Accessible, high-quality components built on Radix UI primitives.
+- **Lucide React**: Professional health and utility iconography.
 
 ---
 
-## � Project Structure
+## 📂 Project Structure
 
 ```bash
 src/
-├── components/     # Reusable UI components (MobileFrame, Button, Charts, etc.)
-├── hooks/          # Custom React hooks for logic reuse
-├── lib/            # Utility functions and library configurations (utils.ts)
-├── pages/          # Full-screen page components (Dashboard, Scan, Analytics, etc.)
-│   ├── Onboarding/ # Initial setup flow
-│   ├── Scan/       # Core measurement logic and UI
-│   ├── Reports/    # PDF generation and preview
-│   └── ...
-├── App.tsx          # Main routing and application layout
-└── main.tsx        # Entry point
+├── components/     # UI Components
+│   ├── camera/     # Camera & Face detection UI (FaceOverlay, CameraFeed)
+│   ├── analytics/  # Health charts and reports (TrendGraph, ReportPreview)
+│   └── ui/         # Base Shadcn components
+├── hooks/          # Custom Hooks
+│   ├── useRPPG.ts  # Signal processing & FFT logic
+│   ├── useCamera.ts# Hardware access & stream management
+│   └── useFaceMesh.ts# MediaPipe orchestration
+├── lib/            # Shared logic & State
+│   ├── vitalsStore.ts # Real-time vital data
+│   └── scanFlowStore.ts # Unified flow state machine
+├── pages/          # Full-screen pages
+└── App.tsx          # Router configuration
 ```
 
 ---
@@ -111,9 +112,9 @@ src/
 
 VitalsLens utilizes **Remote Photoplethysmography (rPPG)**. When your heart beats, blood volume in your face changes subtly. This change causes microscopic variations in skin color that are invisible to the naked eye but detectable by high-resolution smartphone cameras. 
 
-1. **Face Detection**: The app identifies your face and selects relevant regions of interest (ROI).
-2. **Signal Extraction**: It tracks color changes in the R, G, and B channels over 30 seconds.
-3. **Filtering & FFT**: AI filters out noise (movement, lighting changes) and applies Fast Fourier Transform to identify the heart rate and respiratory rate frequencies.
+1. **Real-time Face Tracking**: Using MediaPipe, the app identifies the facial mesh and isolates the forehead and cheek areas (ROI) where capillary blood flow is most visible.
+2. **Chrominance Signal Extraction**: It tracks microscopic color variations in the G and R channels, which correlate with the cardiac cycle.
+3. **Filtering & Spectral Analysis**: The raw signal is filtered to remove noise and motion artifacts. A spectral analysis (DFT/FFT) is then performed to identify the peak frequency corresponding to the heart rate (BPM) and respiratory rate (RPM).
 
 ---
 
