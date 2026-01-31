@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import MobileFrame from "@/components/MobileFrame";
 import AlertHistoryCard from "@/components/analytics/AlertHistoryCard";
 import ComplianceFooter from "@/components/analytics/ComplianceFooter";
 import { ArrowLeft, Filter } from "lucide-react";
@@ -55,8 +54,8 @@ const AlertHistoryScreen = () => {
     },
   ];
 
-  const filteredAlerts = filter === "all" 
-    ? alerts 
+  const filteredAlerts = filter === "all"
+    ? alerts
     : alerts.filter(a => a.type === filter);
 
   const filterCounts = {
@@ -67,11 +66,11 @@ const AlertHistoryScreen = () => {
   };
 
   return (
-    <MobileFrame>
-      <div className="h-full flex flex-col">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-lg mx-auto min-h-screen flex flex-col">
         {/* Header */}
         <div className="flex items-center gap-3 p-4">
-          <button 
+          <button
             onClick={() => navigate("/analytics")}
             className="w-10 h-10 rounded-xl bg-card flex items-center justify-center shadow-card btn-ripple"
           >
@@ -95,19 +94,17 @@ const AlertHistoryScreen = () => {
               <button
                 key={f.value}
                 onClick={() => setFilter(f.value)}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-caption font-medium transition-all whitespace-nowrap btn-ripple ${
-                  filter === f.value
-                    ? f.value === "critical" ? "bg-destructive text-destructive-foreground" :
-                      f.value === "warning" ? "bg-warning text-warning-foreground" :
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-caption font-medium transition-all whitespace-nowrap btn-ripple ${filter === f.value
+                  ? f.value === "critical" ? "bg-destructive text-destructive-foreground" :
+                    f.value === "warning" ? "bg-warning text-warning-foreground" :
                       f.value === "info" ? "bg-primary text-primary-foreground" :
-                      "bg-foreground text-background"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80"
-                }`}
+                        "bg-foreground text-background"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  }`}
               >
                 {f.label}
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                  filter === f.value ? "bg-white/20" : "bg-foreground/10"
-                }`}>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${filter === f.value ? "bg-white/20" : "bg-foreground/10"
+                  }`}>
                   {filterCounts[f.value]}
                 </span>
               </button>
@@ -142,7 +139,7 @@ const AlertHistoryScreen = () => {
         {/* Compliance Footer */}
         <ComplianceFooter compact />
       </div>
-    </MobileFrame>
+    </div>
   );
 };
 

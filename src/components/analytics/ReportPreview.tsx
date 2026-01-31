@@ -1,21 +1,11 @@
 import { Activity, Heart, Droplets, Wind, Calendar, Clock, ShieldCheck } from "lucide-react";
+import { useVitalsStore } from "@/lib/vitalsStore";
 
-interface VitalSummary {
-  name: string;
-  average: number;
-  min: number;
-  max: number;
-  unit: string;
-  deviations: number;
-}
-
-interface ReportPreviewProps {
-  dateRange: { start: string; end: string };
-  overallStatus: "stable" | "needs-attention" | "critical";
-  riskLevel: "low" | "moderate" | "high";
-  confidence: number;
-  vitals: VitalSummary[];
-  aiInterpretation: string;
+interface HistoryEntry {
+  timestamp: number;
+  heartRate?: number;
+  spo2?: number;
+  respirationRate?: number;
 }
 
 const statusConfig = {
@@ -30,9 +20,52 @@ const riskConfig = {
   high: { label: "High Risk", color: "text-destructive" },
 };
 
-const ReportPreview = ({ dateRange, overallStatus, riskLevel, confidence, vitals, aiInterpretation }: ReportPreviewProps) => {
+const ReportPreview = () => {
+  // Pull latest vitals from store snapshot
+  const { heartRate, spo2, respirationRate, signalQuality } = useVitalsStore.getState();
+
+  // Load history for analytics
+  const historyJson = localStorage.getItem("vitals_history");
+  const history: HistoryEntry[] = historyJson ? JSON.parse(historyJson) : [];
+
+  const allReadings = [...history];
+  if (heartRate) allReadings.push({ timestamp: Date.now(), heartRate, spo2, respirationRate });
+
+  const getStats = (key: keyof HistoryEntry) => {
+    const values = allReadings
+      .map(r => r[key])
+      .filter(v => typeof v === 'number') as number[];
+
+    if (values.length === 0) return { avg: "—", min: "—", max: "—", deviations: 0 };
+
+    const avg = Math.round(values.reduce((a, b) => a + b, 0) / values.length);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+
+    return { avg, min, max, deviations: values.length > 5 ? 1 : 0 };
+  };
+
+  const hrStats = getStats('heartRate');
+  const spo2Stats = getStats('spo2');
+  const respStats = getStats('respirationRate');
+
+  const vitals = [
+    { name: "Heart Rate", average: hrStats.avg, min: hrStats.min, max: hrStats.max, unit: "BPM", deviations: hrStats.deviations },
+    { name: "SpO₂", average: spo2Stats.avg, min: spo2Stats.min, max: spo2Stats.max, unit: "%", deviations: spo2Stats.deviations },
+    { name: "Respiratory Rate", average: respStats.avg, min: respStats.min, max: respStats.max, unit: "RPM", deviations: respStats.deviations },
+  ];
+
+  const overallStatus: "stable" | "needs-attention" | "critical" =
+    (spo2 !== undefined && spo2 < 92) ? "critical" :
+      (heartRate !== undefined && heartRate > 100) ? "needs-attention" : "stable";
+
+  const riskLevel: "low" | "moderate" | "high" =
+    overallStatus === "critical" ? "high" :
+      overallStatus === "needs-attention" ? "moderate" : "low";
+
   const status = statusConfig[overallStatus];
   const risk = riskConfig[riskLevel];
+  const confidence = signalQuality === "Good" ? 98 : signalQuality === "Fair" ? 72 : 45;
 
   return (
     <div className="bg-card rounded-2xl overflow-hidden shadow-elevated">
@@ -50,11 +83,11 @@ const ReportPreview = ({ dateRange, overallStatus, riskLevel, confidence, vitals
         <div className="flex items-center gap-4 text-caption">
           <div className="flex items-center gap-1.5">
             <Calendar className="w-3.5 h-3.5" />
-            <span>{dateRange.start} – {dateRange.end}</span>
+            <span>Last 30 Days</span>
           </div>
           <div className="flex items-center gap-1.5">
             <Clock className="w-3.5 h-3.5" />
-            <span>Generated now</span>
+            <span>Generated {new Date().toLocaleDateString()}</span>
           </div>
         </div>
       </div>
@@ -112,7 +145,11 @@ const ReportPreview = ({ dateRange, overallStatus, riskLevel, confidence, vitals
           <h3 className="text-caption font-semibold text-muted-foreground uppercase tracking-wider">AI Interpretation</h3>
         </div>
         <p className="text-body text-foreground leading-relaxed">
-          {aiInterpretation}
+          {riskLevel === "high"
+            ? "Your oxygen saturation levels are concerningly low. Please consult a healthcare professional immediately."
+            : riskLevel === "moderate"
+              ? "Your heart rate is slightly elevated. Monitor your activity and rest levels over the next 24 hours."
+              : "Your vital signs are within normal ranges based on recent observations. Continue regular monitoring."}
         </p>
       </div>
 

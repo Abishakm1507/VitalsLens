@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import MobileFrame from "@/components/MobileFrame";
 import BottomNav from "@/components/BottomNav";
 import { ArrowLeft, Calendar, Heart, Droplets, Wind, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
@@ -38,25 +37,25 @@ const mockData = {
 };
 
 const vitalConfig = {
-  heartRate: { 
-    label: "Heart Rate", 
-    unit: "BPM", 
+  heartRate: {
+    label: "Heart Rate",
+    unit: "BPM",
     color: "hsl(0, 84%, 60%)",
     icon: Heart,
     min: 50,
     max: 100,
   },
-  spo2: { 
-    label: "Blood Oxygen", 
-    unit: "%", 
+  spo2: {
+    label: "Blood Oxygen",
+    unit: "%",
     color: "hsl(207, 97%, 55%)",
     icon: Droplets,
     min: 90,
     max: 100,
   },
-  respiratory: { 
-    label: "Respiratory", 
-    unit: "br/min", 
+  respiratory: {
+    label: "Respiratory",
+    unit: "br/min",
     color: "hsl(161, 74%, 52%)",
     icon: Wind,
     min: 10,
@@ -68,21 +67,21 @@ const HistoryScreen = () => {
   const navigate = useNavigate();
   const [selectedVital, setSelectedVital] = useState<VitalType>("heartRate");
   const [period, setPeriod] = useState<"week" | "month">("week");
-  
+
   const config = vitalConfig[selectedVital];
   const data = mockData[selectedVital];
   const latestValue = data[data.length - 1].value;
   const previousValue = data[data.length - 2].value;
   const trend = latestValue > previousValue ? "up" : latestValue < previousValue ? "down" : "stable";
-  
+
   const TrendIcon = trend === "up" ? TrendingUp : trend === "down" ? TrendingDown : Minus;
-  
+
   return (
-    <MobileFrame showNav>
-      <div className="h-full flex flex-col">
+    <div className="min-h-screen bg-background pb-24">
+      <div className="max-w-lg mx-auto min-h-screen flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-4">
-          <button 
+          <button
             onClick={() => navigate("/dashboard")}
             className="w-10 h-10 rounded-xl bg-card flex items-center justify-center shadow-card"
           >
@@ -93,7 +92,7 @@ const HistoryScreen = () => {
             <Calendar className="w-5 h-5 text-muted-foreground" />
           </button>
         </div>
-        
+
         {/* Vital type selector */}
         <div className="px-4 mb-4">
           <div className="flex gap-2 p-1 bg-card rounded-xl">
@@ -104,11 +103,10 @@ const HistoryScreen = () => {
                 <button
                   key={type}
                   onClick={() => setSelectedVital(type)}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg transition-all ${
-                    isSelected 
-                      ? "bg-primary text-primary-foreground shadow-button" 
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg transition-all ${isSelected
+                    ? "bg-primary text-primary-foreground shadow-button"
+                    : "text-muted-foreground hover:text-foreground"
+                    }`}
                 >
                   <Icon className="w-4 h-4" />
                   <span className="text-caption font-medium hidden sm:inline">
@@ -119,7 +117,7 @@ const HistoryScreen = () => {
             })}
           </div>
         </div>
-        
+
         {/* Current value card */}
         <div className="mx-4 p-4 card-medical mb-4">
           <div className="flex items-center justify-between">
@@ -132,11 +130,10 @@ const HistoryScreen = () => {
                 <span className="text-body text-muted-foreground">{config.unit}</span>
               </div>
             </div>
-            <div className={`flex items-center gap-1 px-3 py-1 rounded-full ${
-              trend === "up" ? "bg-warning/10 text-warning" : 
-              trend === "down" ? "bg-success/10 text-success" : 
-              "bg-muted text-muted-foreground"
-            }`}>
+            <div className={`flex items-center gap-1 px-3 py-1 rounded-full ${trend === "up" ? "bg-warning/10 text-warning" :
+              trend === "down" ? "bg-success/10 text-success" :
+                "bg-muted text-muted-foreground"
+              }`}>
               <TrendIcon className="w-4 h-4" />
               <span className="text-caption font-medium">
                 {Math.abs(latestValue - previousValue)} {config.unit}
@@ -144,43 +141,42 @@ const HistoryScreen = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Period selector */}
         <div className="px-4 mb-2 flex gap-2">
           {["week", "month"].map((p) => (
             <button
               key={p}
               onClick={() => setPeriod(p as typeof period)}
-              className={`px-4 py-2 rounded-lg text-caption font-medium transition-colors ${
-                period === p 
-                  ? "bg-primary text-primary-foreground" 
-                  : "bg-card text-muted-foreground"
-              }`}
+              className={`px-4 py-2 rounded-lg text-caption font-medium transition-colors ${period === p
+                ? "bg-primary text-primary-foreground"
+                : "bg-card text-muted-foreground"
+                }`}
             >
               {p.charAt(0).toUpperCase() + p.slice(1)}
             </button>
           ))}
         </div>
-        
+
         {/* Chart */}
         <div className="flex-1 px-4">
           <div className="h-[200px] card-medical">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={data} margin={{ top: 20, right: 20, bottom: 10, left: -20 }}>
-                <XAxis 
-                  dataKey="day" 
-                  axisLine={false} 
+                <XAxis
+                  dataKey="day"
+                  axisLine={false}
                   tickLine={false}
                   tick={{ fontSize: 12, fill: 'hsl(209, 22%, 49%)' }}
                 />
-                <YAxis 
+                <YAxis
                   domain={[config.min, config.max]}
-                  axisLine={false} 
+                  axisLine={false}
                   tickLine={false}
                   tick={{ fontSize: 12, fill: 'hsl(209, 22%, 49%)' }}
                 />
-                <Tooltip 
-                  contentStyle={{ 
+                <Tooltip
+                  contentStyle={{
                     background: 'hsl(0, 0%, 100%)',
                     border: 'none',
                     borderRadius: '12px',
@@ -188,9 +184,9 @@ const HistoryScreen = () => {
                   }}
                   labelStyle={{ color: 'hsl(209, 63%, 16%)' }}
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="value" 
+                <Line
+                  type="monotone"
+                  dataKey="value"
                   stroke={config.color}
                   strokeWidth={3}
                   dot={{ fill: config.color, strokeWidth: 0, r: 4 }}
@@ -200,7 +196,7 @@ const HistoryScreen = () => {
             </ResponsiveContainer>
           </div>
         </div>
-        
+
         {/* Recent readings */}
         <div className="px-4 pb-6 mt-4">
           <h3 className="text-card-title text-foreground mb-3">Recent Readings</h3>
@@ -216,9 +212,9 @@ const HistoryScreen = () => {
           </div>
         </div>
       </div>
-      
+
       <BottomNav />
-    </MobileFrame>
+    </div>
   );
 };
 

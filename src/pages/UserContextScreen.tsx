@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import MobileFrame from "@/components/MobileFrame";
 import Button from "@/components/Button";
 import { ArrowLeft, User, Heart, Stethoscope, Users, Activity, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -39,21 +38,21 @@ const UserContextScreen = () => {
   const [ageGroup, setAgeGroup] = useState<AgeGroup | null>(null);
   const [purpose, setPurpose] = useState<Purpose | null>(null);
   const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
-  
+
   const toggleCondition = (id: string) => {
-    setSelectedConditions(prev => 
+    setSelectedConditions(prev =>
       prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
     );
   };
-  
+
   const canContinue = ageGroup && purpose;
-  
+
   return (
-    <MobileFrame>
-      <div className="h-full flex flex-col">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-lg mx-auto min-h-screen flex flex-col">
         {/* Header */}
         <div className="flex items-center gap-4 p-4">
-          <button 
+          <button
             onClick={() => navigate("/profile")}
             className="w-10 h-10 rounded-xl bg-card flex items-center justify-center shadow-card"
           >
@@ -61,7 +60,7 @@ const UserContextScreen = () => {
           </button>
           <h1 className="text-section-title text-foreground">Personalize</h1>
         </div>
-        
+
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-4 pb-8 space-y-6">
           {/* Age group */}
@@ -84,7 +83,7 @@ const UserContextScreen = () => {
               ))}
             </div>
           </div>
-          
+
           {/* Measurement purpose */}
           <div className="space-y-3">
             <h2 className="text-card-title text-foreground">Measurement Purpose</h2>
@@ -128,7 +127,7 @@ const UserContextScreen = () => {
               })}
             </div>
           </div>
-          
+
           {/* Known conditions (optional) */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
@@ -159,11 +158,11 @@ const UserContextScreen = () => {
             </p>
           </div>
         </div>
-        
+
         {/* CTA */}
         <div className="p-4 pb-8">
-          <Button 
-            onClick={() => navigate("/profile")} 
+          <Button
+            onClick={() => navigate("/profile")}
             fullWidth
             disabled={!canContinue}
           >
@@ -171,7 +170,7 @@ const UserContextScreen = () => {
           </Button>
         </div>
       </div>
-    </MobileFrame>
+    </div>
   );
 };
 

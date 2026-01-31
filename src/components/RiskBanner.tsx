@@ -1,11 +1,10 @@
 import { ShieldCheck, AlertTriangle, AlertOctagon, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useVitalsStore } from "@/lib/vitalsStore";
 
 type RiskLevel = "low" | "moderate" | "high";
 
 interface RiskBannerProps {
-  level: RiskLevel;
-  explanation?: string;
   onLearnMore?: () => void;
 }
 
@@ -30,7 +29,7 @@ const riskConfig: Record<RiskLevel, {
   moderate: {
     icon: AlertTriangle,
     title: "Monitor Closely",
-    defaultExplanation: "Some readings require attention. Consider re-measuring after rest.",
+    defaultExplanation: "Heart rate is elevated. Consider re-measuring after rest.",
     bgClass: "bg-warning/5",
     borderClass: "border-warning/20",
     iconBgClass: "bg-warning/20",
@@ -39,7 +38,7 @@ const riskConfig: Record<RiskLevel, {
   high: {
     icon: AlertOctagon,
     title: "Seek Medical Attention",
-    defaultExplanation: "Readings indicate potential health concern. Please consult a healthcare provider.",
+    defaultExplanation: "Oxygen levels are below normal. Please consult a healthcare provider.",
     bgClass: "bg-destructive/5",
     borderClass: "border-destructive/20",
     iconBgClass: "bg-destructive/20",
@@ -47,10 +46,27 @@ const riskConfig: Record<RiskLevel, {
   },
 };
 
-const RiskBanner = ({ level, explanation, onLearnMore }: RiskBannerProps) => {
+const RiskBanner = ({ onLearnMore }: RiskBannerProps) => {
+  const { heartRate, spo2 } = useVitalsStore();
+
+  // Rule-based logic
+  let level: RiskLevel | null = null;
+  let explanation = "";
+
+  if (spo2 !== undefined && spo2 < 92) {
+    level = "high";
+    explanation = "Oxygen saturation (SpO₂) is low. This may indicate poor gas exchange.";
+  } else if (heartRate !== undefined && heartRate > 110) {
+    level = "moderate";
+    explanation = "Heart rate is significantly elevated. Sit still and rest for 5 minutes.";
+  }
+
+  // If no risk detected, do not render
+  if (!level) return null;
+
   const config = riskConfig[level];
   const Icon = config.icon;
-  
+
   return (
     <div className={cn(
       "rounded-2xl border p-4 transition-all duration-300 animate-fade-in",
@@ -81,7 +97,7 @@ const RiskBanner = ({ level, explanation, onLearnMore }: RiskBannerProps) => {
           </p>
         </div>
         {onLearnMore && (
-          <button 
+          <button
             onClick={onLearnMore}
             className="p-2 hover:bg-card rounded-lg transition-colors shrink-0"
           >

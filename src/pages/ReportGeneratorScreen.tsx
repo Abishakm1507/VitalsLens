@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import MobileFrame from "@/components/MobileFrame";
 import Button from "@/components/Button";
 import { ArrowLeft, Calendar, Heart, Droplets, Wind, Sparkles, BarChart3, FileText } from "lucide-react";
 
 const ReportGeneratorScreen = () => {
   const navigate = useNavigate();
-  
+
   const [dateRange, setDateRange] = useState<"7d" | "14d" | "30d">("7d");
   const [selectedVitals, setSelectedVitals] = useState({
     heartRate: true,
@@ -34,11 +33,11 @@ const ReportGeneratorScreen = () => {
   };
 
   return (
-    <MobileFrame>
-      <div className="h-full flex flex-col">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-lg mx-auto min-h-screen flex flex-col">
         {/* Header */}
         <div className="flex items-center gap-3 p-4">
-          <button 
+          <button
             onClick={() => navigate("/analytics")}
             className="w-10 h-10 rounded-xl bg-card flex items-center justify-center shadow-card btn-ripple"
           >
@@ -64,11 +63,10 @@ const ReportGeneratorScreen = () => {
                 <button
                   key={option.value}
                   onClick={() => setDateRange(option.value)}
-                  className={`flex-1 py-3 px-4 rounded-xl text-caption font-medium transition-all btn-ripple ${
-                    dateRange === option.value
-                      ? "bg-primary text-primary-foreground shadow-button"
-                      : "bg-card text-foreground hover:bg-muted"
-                  }`}
+                  className={`flex-1 py-3 px-4 rounded-xl text-caption font-medium transition-all btn-ripple ${dateRange === option.value
+                    ? "bg-primary text-primary-foreground shadow-button"
+                    : "bg-card text-foreground hover:bg-muted"
+                    }`}
                 >
                   {option.label}
                 </button>
@@ -88,21 +86,19 @@ const ReportGeneratorScreen = () => {
                 <button
                   key={vital.key}
                   onClick={() => toggleVital(vital.key)}
-                  className={`w-full flex items-center gap-3 p-4 rounded-xl transition-all btn-ripple ${
-                    selectedVitals[vital.key]
-                      ? "bg-primary/10 border-2 border-primary"
-                      : "bg-card border-2 border-transparent hover:bg-muted"
-                  }`}
+                  className={`w-full flex items-center gap-3 p-4 rounded-xl transition-all btn-ripple ${selectedVitals[vital.key]
+                    ? "bg-primary/10 border-2 border-primary"
+                    : "bg-card border-2 border-transparent hover:bg-muted"
+                    }`}
                 >
                   <div className={`w-10 h-10 rounded-xl ${selectedVitals[vital.key] ? "bg-primary/20" : "bg-muted"} flex items-center justify-center`}>
                     <vital.icon className={`w-5 h-5 ${vital.color}`} />
                   </div>
                   <span className="text-card-title text-foreground">{vital.label}</span>
-                  <div className={`ml-auto w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
-                    selectedVitals[vital.key]
-                      ? "bg-primary border-primary"
-                      : "border-muted-foreground"
-                  }`}>
+                  <div className={`ml-auto w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${selectedVitals[vital.key]
+                    ? "bg-primary border-primary"
+                    : "border-muted-foreground"
+                    }`}>
                     {selectedVitals[vital.key] && (
                       <svg className="w-4 h-4 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -126,22 +122,20 @@ const ReportGeneratorScreen = () => {
                 <button
                   key={option.key}
                   onClick={() => toggleOption(option.key)}
-                  className={`w-full flex items-center gap-3 p-4 rounded-xl transition-all btn-ripple ${
-                    includeOptions[option.key]
-                      ? "bg-accent border-2 border-primary/30"
-                      : "bg-card border-2 border-transparent hover:bg-muted"
-                  }`}
+                  className={`w-full flex items-center gap-3 p-4 rounded-xl transition-all btn-ripple ${includeOptions[option.key]
+                    ? "bg-accent border-2 border-primary/30"
+                    : "bg-card border-2 border-transparent hover:bg-muted"
+                    }`}
                 >
                   <option.icon className={`w-5 h-5 ${includeOptions[option.key] ? "text-primary" : "text-muted-foreground"}`} />
                   <div className="text-left">
                     <p className="text-card-title text-foreground">{option.label}</p>
                     <p className="text-caption text-muted-foreground">{option.description}</p>
                   </div>
-                  <div className={`ml-auto w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
-                    includeOptions[option.key]
-                      ? "bg-primary border-primary"
-                      : "border-muted-foreground"
-                  }`}>
+                  <div className={`ml-auto w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${includeOptions[option.key]
+                    ? "bg-primary border-primary"
+                    : "border-muted-foreground"
+                    }`}>
                     {includeOptions[option.key] && (
                       <svg className="w-4 h-4 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -169,7 +163,7 @@ const ReportGeneratorScreen = () => {
           </Button>
         </div>
       </div>
-    </MobileFrame>
+    </div>
   );
 };
 

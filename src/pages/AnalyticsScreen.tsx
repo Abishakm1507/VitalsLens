@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import MobileFrame from "@/components/MobileFrame";
 import BottomNav from "@/components/BottomNav";
 import SummaryCard from "@/components/analytics/SummaryCard";
 import AIHealthSummary from "@/components/analytics/AIHealthSummary";
@@ -31,8 +30,8 @@ const AnalyticsScreen = () => {
   const aiSummary = "Your heart rate has remained stable over the past week, averaging 72 BPM. A mild drop in oxygen levels was observed on two occasions, possibly due to fatigue or posture. No immediate concern detected, but continued monitoring is recommended.";
 
   return (
-    <MobileFrame showNav>
-      <div className="h-full flex flex-col">
+    <div className="min-h-screen bg-background pb-24">
+      <div className="max-w-lg mx-auto min-h-screen flex flex-col">
         {/* Header */}
         <div className="p-4 pb-2">
           <h1 className="text-section-title text-foreground">Health Analytics</h1>
@@ -73,7 +72,7 @@ const AnalyticsScreen = () => {
                   <p className="text-caption text-muted-foreground">Doctor-ready</p>
                 </div>
               </button>
-              
+
               <button
                 onClick={() => navigate("/analytics/alerts")}
                 className="card-medical flex items-center gap-3 hover-lift btn-ripple"
@@ -152,7 +151,7 @@ const AnalyticsScreen = () => {
       </div>
 
       <BottomNav />
-    </MobileFrame>
+    </div>
   );
 };
 

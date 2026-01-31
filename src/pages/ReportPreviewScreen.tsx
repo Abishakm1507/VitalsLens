@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import MobileFrame from "@/components/MobileFrame";
 import ReportPreview from "@/components/analytics/ReportPreview";
 import Button from "@/components/Button";
 import { ArrowLeft, Download, Share2, MessageCircle, Mail, X } from "lucide-react";
@@ -38,18 +37,18 @@ const ReportPreviewScreen = () => {
   };
 
   return (
-    <MobileFrame>
-      <div className="h-full flex flex-col relative">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-lg mx-auto min-h-screen flex flex-col relative">
         {/* Header */}
         <div className="flex items-center justify-between p-4">
-          <button 
+          <button
             onClick={() => navigate("/analytics/report")}
             className="w-10 h-10 rounded-xl bg-card flex items-center justify-center shadow-card btn-ripple"
           >
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
           <span className="text-card-title text-foreground">Report Preview</span>
-          <button 
+          <button
             onClick={() => setShowShareOptions(true)}
             className="w-10 h-10 rounded-xl bg-card flex items-center justify-center shadow-card btn-ripple"
           >
@@ -68,9 +67,9 @@ const ReportPreviewScreen = () => {
             <Download className="w-5 h-5 mr-2" />
             Export as PDF
           </Button>
-          <Button 
-            variant="outline" 
-            onClick={() => setShowShareOptions(true)} 
+          <Button
+            variant="outline"
+            onClick={() => setShowShareOptions(true)}
             fullWidth
             className="btn-ripple"
           >
@@ -126,7 +125,7 @@ const ReportPreviewScreen = () => {
           </div>
         )}
       </div>
-    </MobileFrame>
+    </div>
   );
 };
 

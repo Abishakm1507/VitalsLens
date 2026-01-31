@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import MobileFrame from "@/components/MobileFrame";
 import { ArrowLeft, Heart, Droplets, Wind, CheckCircle, AlertCircle, XCircle } from "lucide-react";
 
 const CaregiverViewScreen = () => {
@@ -7,31 +6,31 @@ const CaregiverViewScreen = () => {
 
   // Mock data - simplified for caregiver view
   const vitals = [
-    { 
-      type: "heartRate", 
-      label: "Heart Rate", 
-      value: 72, 
-      unit: "BPM", 
+    {
+      type: "heartRate",
+      label: "Heart Rate",
+      value: 72,
+      unit: "BPM",
       status: "normal" as const,
       icon: Heart,
       color: "text-[hsl(var(--heart-rate))]",
       bgColor: "bg-[hsl(var(--heart-rate)/0.1)]",
     },
-    { 
-      type: "spo2", 
-      label: "Oxygen Level", 
-      value: 96, 
-      unit: "%", 
+    {
+      type: "spo2",
+      label: "Oxygen Level",
+      value: 96,
+      unit: "%",
       status: "normal" as const,
       icon: Droplets,
       color: "text-primary",
       bgColor: "bg-primary/10",
     },
-    { 
-      type: "respiratory", 
-      label: "Breathing", 
-      value: 15, 
-      unit: "per min", 
+    {
+      type: "respiratory",
+      label: "Breathing",
+      value: 15,
+      unit: "per min",
       status: "normal" as const,
       icon: Wind,
       color: "text-secondary",
@@ -58,11 +57,11 @@ const CaregiverViewScreen = () => {
   };
 
   return (
-    <MobileFrame>
-      <div className="h-full flex flex-col bg-muted/30">
+    <div className="min-h-screen bg-background pb-20">
+      <div className="max-w-lg mx-auto min-h-screen flex flex-col bg-muted/30">
         {/* Header */}
         <div className="flex items-center gap-3 p-4 bg-card">
-          <button 
+          <button
             onClick={() => navigate("/analytics")}
             className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center btn-ripple"
           >
@@ -91,14 +90,14 @@ const CaregiverViewScreen = () => {
             const VitalIcon = vital.icon;
 
             return (
-              <div 
+              <div
                 key={vital.type}
                 className="card-medical flex items-center gap-4 py-5"
               >
                 <div className={`w-16 h-16 rounded-2xl ${vital.bgColor} flex items-center justify-center`}>
                   <VitalIcon className={`w-8 h-8 ${vital.color}`} />
                 </div>
-                
+
                 <div className="flex-1">
                   <p className="text-lg font-medium text-muted-foreground">{vital.label}</p>
                   <p className="text-3xl font-bold text-foreground">
@@ -145,7 +144,7 @@ const CaregiverViewScreen = () => {
           </button>
         </div>
       </div>
-    </MobileFrame>
+    </div>
   );
 };
 

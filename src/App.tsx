@@ -7,10 +7,7 @@ import SplashScreen from "./pages/SplashScreen";
 import OnboardingScreen from "./pages/OnboardingScreen";
 import PermissionScreen from "./pages/PermissionScreen";
 import DashboardScreen from "./pages/DashboardScreen";
-import PreScanScreen from "./pages/PreScanScreen";
-import ScanScreen from "./pages/ScanScreen";
-import AnalyzingScreen from "./pages/AnalyzingScreen";
-import ResultsScreen from "./pages/ResultsScreen";
+import ScanController from "./pages/Scan/ScanController";
 import InsightsScreen from "./pages/InsightsScreen";
 import HistoryScreen from "./pages/HistoryScreen";
 import AlertsScreen from "./pages/AlertsScreen";
@@ -39,10 +36,7 @@ const App = () => (
           <Route path="/onboarding" element={<OnboardingScreen />} />
           <Route path="/permission" element={<PermissionScreen />} />
           <Route path="/dashboard" element={<DashboardScreen />} />
-          <Route path="/pre-scan" element={<PreScanScreen />} />
-          <Route path="/scan" element={<ScanScreen />} />
-          <Route path="/analyzing" element={<AnalyzingScreen />} />
-          <Route path="/results" element={<ResultsScreen />} />
+          <Route path="/scan" element={<ScanController />} />
           <Route path="/insights" element={<InsightsScreen />} />
           <Route path="/history" element={<HistoryScreen />} />
           <Route path="/alerts" element={<AlertsScreen />} />

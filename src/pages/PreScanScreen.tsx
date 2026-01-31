@@ -1,117 +1,134 @@
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import MobileFrame from "@/components/MobileFrame";
+import { ArrowLeft, Video, ShieldCheck, Sun, Info } from "lucide-react";
+import { useVitalsStore } from "@/lib/vitalsStore";
+import { useScanFlowStore } from "@/lib/scanFlowStore";
+import { useCamera } from "@/hooks/useCamera";
+import { useFaceMesh } from "@/hooks/useFaceMesh";
+
+// UI Components
 import Button from "@/components/Button";
 import ReadinessCheck from "@/components/ReadinessCheck";
-import { ArrowLeft, Scan, Sun, User, Hand } from "lucide-react";
-import { LucideIcon } from "lucide-react";
-
-type CheckStatus = "ready" | "warning" | "pending";
-
-interface CheckItem {
-  id: string;
-  label: string;
-  status: CheckStatus;
-  icon: LucideIcon;
-}
+import SignalQualityChip from "@/components/SignalQualityChip";
+import CameraFeed from "@/components/camera/CameraFeed";
+import FaceOverlay from "@/components/camera/FaceOverlay";
+import { NormalizedLandmarkList } from "@mediapipe/face_mesh";
 
 const PreScanScreen = () => {
   const navigate = useNavigate();
-  const [checks, setChecks] = useState<CheckItem[]>([
-    { id: "lighting", label: "Good lighting detected", status: "pending", icon: Sun },
-    { id: "face", label: "Face fully visible", status: "pending", icon: User },
-    { id: "movement", label: "Minimal movement", status: "pending", icon: Hand },
-  ]);
-  
-  // Simulate readiness check progression
-  useEffect(() => {
-    const timers = [
-      setTimeout(() => {
-        setChecks(prev => prev.map(c => 
-          c.id === "lighting" ? { ...c, status: "ready" as CheckStatus } : c
-        ));
-      }, 800),
-      setTimeout(() => {
-        setChecks(prev => prev.map(c => 
-          c.id === "face" ? { ...c, status: "ready" as CheckStatus } : c
-        ));
-      }, 1600),
-      setTimeout(() => {
-        setChecks(prev => prev.map(c => 
-          c.id === "movement" ? { ...c, status: "warning" as CheckStatus } : c
-        ));
-      }, 2400),
-      setTimeout(() => {
-        setChecks(prev => prev.map(c => 
-          c.id === "movement" ? { ...c, status: "ready" as CheckStatus } : c
-        ));
-      }, 3500),
-    ];
-    
-    return () => timers.forEach(t => clearTimeout(t));
-  }, []);
-  
-  const allReady = checks.every(c => c.status === "ready");
-  const tips = ["Sit still", "Remove glasses if possible", "Face natural light"];
-  
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const signalQuality = useVitalsStore((state) => state.signalQuality);
+  const setStage = useScanFlowStore((state) => state.setStage);
+
+  // Initialize hooks
+  const { error: cameraError } = useCamera(videoRef);
+  const [landmarks, setLandmarks] = useState<NormalizedLandmarkList | null>(null);
+  useFaceMesh(videoRef, (l) => setLandmarks(l));
+
+  // Map store signal quality to component quality types
+  const mappedQuality = signalQuality.toLowerCase() as "poor" | "fair" | "good";
+
+  // Readiness checks status
+  const checks = [
+    {
+      id: "lighting",
+      label: "Lighting Conditions",
+      status: mappedQuality === "good" ? "ready" : mappedQuality === "fair" ? "warning" : "pending",
+      icon: Sun
+    },
+    {
+      id: "face",
+      label: "Face Visibility",
+      status: mappedQuality === "good" ? "ready" : "pending",
+      icon: ShieldCheck
+    },
+    {
+      id: "position",
+      label: "Stable Positioning",
+      status: mappedQuality !== "poor" ? "ready" : "pending",
+      icon: Video
+    },
+  ] as const;
+
+  const isReady = signalQuality === "Good";
+  const buttonText = isReady ? "Start Scan" : "Adjust lighting / position";
+
   return (
-    <MobileFrame>
-      <div className="h-full flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col items-center">
+      <div className="w-full max-w-lg min-h-screen flex flex-col bg-background px-4 py-6">
         {/* Header */}
-        <div className="flex items-center gap-4 p-4">
-          <button 
+        <div className="flex items-center gap-4 mb-8">
+          <button
             onClick={() => navigate("/dashboard")}
-            className="w-10 h-10 rounded-xl bg-card flex items-center justify-center shadow-card"
+            className="w-10 h-10 rounded-xl bg-card border border-border flex items-center justify-center shadow-sm hover:bg-accent transition-colors"
           >
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
-          <h1 className="text-section-title text-foreground">Pre-Scan Check</h1>
+          <div>
+            <h1 className="text-xl font-bold text-foreground">Prepare for Scan</h1>
+            <p className="text-sm text-muted-foreground">Ensure optimal conditions for accuracy</p>
+          </div>
         </div>
-        
-        {/* Content */}
-        <div className="flex-1 px-4 pb-8 flex flex-col">
-          {/* Camera preview placeholder */}
-          <div className="relative aspect-[4/3] bg-foreground/95 rounded-2xl mb-6 overflow-hidden">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-40 h-52 rounded-[50%] border-2 border-white/30 border-dashed flex items-center justify-center">
-                <User className="w-16 h-16 text-white/30" />
-              </div>
+
+        {/* Camera Preview Section */}
+        <div className="relative mb-8 px-4 flex justify-center">
+          <CameraFeed videoRef={videoRef} className="w-full max-w-[320px]" />
+          <FaceOverlay landmarks={landmarks} />
+
+          <div className="absolute top-4 right-8">
+            <SignalQualityChip quality={mappedQuality} />
+          </div>
+
+          {cameraError && (
+            <div className="absolute inset-x-8 top-1/2 -translate-y-1/2 bg-destructive/10 border border-destructive/20 backdrop-blur-md p-4 rounded-2xl text-center">
+              <p className="text-sm text-destructive font-medium">Camera Error</p>
+              <p className="text-xs text-destructive/80 mt-1">Please ensure camera permissions are granted.</p>
             </div>
-            <div className="absolute bottom-3 left-3 right-3">
-              <div className="bg-black/40 backdrop-blur-sm rounded-xl px-3 py-2 text-center">
-                <p className="text-caption text-white/80">
-                  Position your face in the center
-                </p>
-              </div>
+          )}
+        </div>
+
+        {/* Instructions & Readiness Section */}
+        <div className="flex-1 space-y-6">
+          <div className="bg-card border border-border rounded-2xl p-4 shadow-sm">
+            <div className="flex items-center gap-2 mb-4">
+              <Info className="w-4 h-4 text-primary" />
+              <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider">Readiness Check</h2>
             </div>
+
+            <ReadinessCheck
+              checks={checks as any}
+              tips={[
+                "Face natural light source",
+                "Ensure your face is fully within the oval",
+                "Sit still and avoid talking",
+                "Remove glasses or masks if possible"
+              ]}
+            />
           </div>
-          
-          {/* Readiness checklist */}
-          <div className="flex-1">
-            <h2 className="text-card-title text-foreground mb-4">Environment Check</h2>
-            <ReadinessCheck checks={checks} tips={tips} />
-          </div>
-          
-          {/* CTA Button */}
-          <div className="pt-4">
-            <Button 
-              onClick={() => navigate("/scan")} 
-              fullWidth
-              disabled={!allReady}
-              className={!allReady ? "opacity-50" : ""}
-            >
-              <Scan className="w-5 h-5 mr-2" />
-              Begin AI Scan
-            </Button>
-            {!allReady && (
-              <p className="text-caption text-muted-foreground text-center mt-2">
-                Waiting for optimal conditions...
-              </p>
-            )}
-          </div>
+        </div>
+
+        {/* Bottom CTA */}
+        <div className="mt-8 pb-4">
+          <Button
+            onClick={() => setStage("scanning")}
+            fullWidth
+            disabled={!isReady}
+            size="lg"
+            className={`shadow-lg transition-all duration-300 ${isReady
+              ? "bg-primary hover:scale-[1.02]"
+              : "bg-muted text-muted-foreground grayscale cursor-not-allowed"
+              }`}
+          >
+            {buttonText}
+          </Button>
+          {!isReady && (
+            <p className="text-center text-xs text-muted-foreground mt-3 animate-pulse">
+              Waiting for optimal signal quality...
+            </p>
+          )}
         </div>
       </div>
-    </MobileFrame>
+    </div>
   );
 };
 

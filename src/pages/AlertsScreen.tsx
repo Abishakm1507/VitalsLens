@@ -1,12 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import MobileFrame from "@/components/MobileFrame";
 import BottomNav from "@/components/BottomNav";
 import AlertCard from "@/components/AlertCard";
 import { ArrowLeft, BellOff } from "lucide-react";
 
 const AlertsScreen = () => {
   const navigate = useNavigate();
-  
+
   const alerts = [
     {
       severity: "warning" as const,
@@ -27,13 +26,13 @@ const AlertsScreen = () => {
       time: "3d ago",
     },
   ];
-  
+
   return (
-    <MobileFrame showNav>
-      <div className="h-full flex flex-col">
+    <div className="min-h-screen bg-background pb-24">
+      <div className="max-w-lg mx-auto min-h-screen flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-4">
-          <button 
+          <button
             onClick={() => navigate("/dashboard")}
             className="w-10 h-10 rounded-xl bg-card flex items-center justify-center shadow-card"
           >
@@ -44,17 +43,17 @@ const AlertsScreen = () => {
             <BellOff className="w-5 h-5 text-muted-foreground" />
           </button>
         </div>
-        
+
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-4 pb-6">
           <p className="text-body text-muted-foreground mb-6">
             Health notifications and important updates about your vitals.
           </p>
-          
+
           <div className="space-y-3">
             {alerts.map((alert, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className="animate-slide-up"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
@@ -62,19 +61,19 @@ const AlertsScreen = () => {
               </div>
             ))}
           </div>
-          
+
           {/* Disclaimer */}
           <div className="mt-8 p-4 rounded-xl bg-muted/50">
             <p className="text-caption text-muted-foreground text-center leading-relaxed">
-              These alerts are for informational purposes only and do not constitute medical advice. 
+              These alerts are for informational purposes only and do not constitute medical advice.
               Consult a healthcare professional for medical concerns.
             </p>
           </div>
         </div>
       </div>
-      
+
       <BottomNav />
-    </MobileFrame>
+    </div>
   );
 };
 

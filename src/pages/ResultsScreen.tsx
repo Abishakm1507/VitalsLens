@@ -1,199 +1,176 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import MobileFrame from "@/components/MobileFrame";
+import { ArrowLeft, Share2, Save, History, Calendar, Clock } from "lucide-react";
+import { useVitalsStore } from "@/lib/vitalsStore";
+import { useScanFlowStore } from "@/lib/scanFlowStore";
+
+// UI Components
 import VitalCard from "@/components/VitalCard";
 import Button from "@/components/Button";
 import RiskBanner from "@/components/RiskBanner";
 import NextStepsCard from "@/components/NextStepsCard";
 import ConfidenceIndicator from "@/components/ConfidenceIndicator";
+import SignalQualityChip from "@/components/SignalQualityChip";
 import ShareModal from "@/components/ShareModal";
-import EmergencyBanner from "@/components/EmergencyBanner";
-import { ArrowLeft, CheckCircle, Save, History, Share2 } from "lucide-react";
 
 const ResultsScreen = () => {
   const navigate = useNavigate();
   const [showShareModal, setShowShareModal] = useState(false);
-  const [showEmergency, setShowEmergency] = useState(false);
-  
-  type VitalStatus = "normal" | "warning" | "critical";
-  
-  // Simulated vitals - in production this would come from the scan
-  const vitals: Array<{
-    type: "heartRate" | "spo2" | "respiratory";
-    value: number;
-    unit: string;
-    status: VitalStatus;
-    confidence: number;
-    description: string;
-  }> = [
-    { 
-      type: "heartRate", 
-      value: 74, 
-      unit: "BPM", 
-      status: "normal",
-      confidence: 96,
-      description: "Your heart rate is within the healthy resting range of 60-100 BPM."
-    },
-    { 
-      type: "spo2", 
-      value: 97, 
-      unit: "%", 
-      status: "normal",
-      confidence: 94,
-      description: "Excellent oxygen saturation. Normal range is 95-100%."
-    },
-    { 
-      type: "respiratory", 
-      value: 15, 
-      unit: "breaths/min", 
-      status: "normal",
-      confidence: 91,
-      description: "Healthy breathing rate. Normal range is 12-20 breaths per minute."
-    },
-  ];
-  
-  // Calculate overall risk level based on vitals
-  const getRiskLevel = () => {
-    const hasWarning = vitals.some(v => v.status === "warning");
-    const hasCritical = vitals.some(v => v.status === "critical");
-    if (hasCritical) return "high";
-    if (hasWarning) return "moderate";
+
+  // Read from Zustand store
+  const { heartRate, spo2, respirationRate, signalQuality } = useVitalsStore();
+  const resetScan = useScanFlowStore((state) => state.resetScan);
+
+  const mappedQuality = signalQuality.toLowerCase() as "poor" | "fair" | "good";
+
+  // Map signal quality to confidence score for the indicator
+  const confidenceScore = signalQuality === "Good" ? 98 : signalQuality === "Fair" ? 75 : 45;
+
+  const getStatus = (type: "heartRate" | "spo2" | "respiratory", value?: number): "normal" | "warning" | "critical" => {
+    if (value === undefined) return "normal";
+
+    switch (type) {
+      case "heartRate":
+        return (value >= 60 && value <= 100) ? "normal" : "warning";
+      case "spo2":
+        if (value >= 95) return "normal";
+        if (value >= 90) return "warning";
+        return "critical";
+      case "respiratory":
+        return (value >= 12 && value <= 20) ? "normal" : "warning";
+      default:
+        return "normal";
+    }
+  };
+
+  const hrStatus = getStatus("heartRate", heartRate);
+  const spo2Status = getStatus("spo2", spo2);
+  const respStatus = getStatus("respiratory", respirationRate);
+
+  const getOverallRiskLevel = (): "low" | "moderate" | "high" => {
+    const statuses = [hrStatus, spo2Status, respStatus];
+    if (statuses.includes("critical")) return "high";
+    if (statuses.includes("warning")) return "moderate";
     return "low";
   };
-  
-  const riskLevel = getRiskLevel();
-  
-  const reading = {
-    heartRate: 74,
-    spo2: 97,
-    respiratory: 15,
-    riskLevel: riskLevel as "low" | "moderate" | "high",
-    timestamp: new Date(),
-  };
-  
+
+  const riskLevel = getOverallRiskLevel();
+
   return (
-    <MobileFrame>
-      <div className="h-full flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col items-center">
+      <div className="w-full max-w-lg min-h-screen flex flex-col bg-background px-4 py-6">
         {/* Header */}
-        <div className="flex items-center justify-between p-4">
-          <button 
+        <div className="flex items-center justify-between mb-6">
+          <button
             onClick={() => navigate("/dashboard")}
-            className="w-10 h-10 rounded-xl bg-card flex items-center justify-center shadow-card btn-ripple"
+            className="w-10 h-10 rounded-xl bg-card border border-border flex items-center justify-center shadow-sm hover:bg-accent transition-colors"
           >
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
-          <span className="text-card-title text-foreground">Scan Results</span>
-          <button 
+          <h1 className="text-lg font-bold text-foreground">Scan Results</h1>
+          <button
             onClick={() => setShowShareModal(true)}
-            className="w-10 h-10 rounded-xl bg-card flex items-center justify-center shadow-card btn-ripple"
+            className="w-10 h-10 rounded-xl bg-card border border-border flex items-center justify-center shadow-sm hover:bg-accent transition-colors"
           >
             <Share2 className="w-5 h-5 text-muted-foreground" />
           </button>
         </div>
-        
-        {/* Risk Banner - NEW */}
-        <div className="px-4 mb-4">
-          <RiskBanner 
-            level={riskLevel}
-            explanation="Based on WHO reference ranges and your recent trends"
-          />
-        </div>
-        
-        {/* Vital results with confidence indicators */}
-        <div className="flex-1 overflow-y-auto px-4 pb-6 space-y-4">
-          {vitals.map((vital, index) => (
-            <div 
-              key={vital.type} 
-              className="animate-slide-up"
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              <VitalCard 
-                type={vital.type}
-                value={vital.value}
-                unit={vital.unit}
-                status={vital.status}
-              />
-              {/* Confidence Indicator - NEW */}
-              <div className="mt-2 px-1">
-                <ConfidenceIndicator confidence={vital.confidence} size="sm" />
-              </div>
-              <p className="text-caption text-muted-foreground mt-1 px-1 leading-relaxed">
-                {vital.description}
-              </p>
+
+        {/* Content Section */}
+        <div className="flex-1 space-y-6 overflow-y-auto pb-4">
+          {/* Signal Assessment */}
+          <div className="flex items-center justify-between bg-muted/30 rounded-2xl p-4 border border-border/50">
+            <div className="space-y-1">
+              <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Signal Quality</span>
+              <SignalQualityChip quality={mappedQuality} />
             </div>
-          ))}
-          
-          {/* Time stamp */}
-          <p className="text-center text-caption text-muted-foreground pt-2">
-            Measured at {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • Today
-          </p>
-          
-          {/* What Should I Do Next? - NEW */}
-          <NextStepsCard 
+            <div className="text-right space-y-1">
+              <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">AI Confidence</span>
+              <ConfidenceIndicator confidence={confidenceScore} showTooltip={false} size="sm" />
+            </div>
+          </div>
+
+          {/* Risk Summary */}
+          <RiskBanner />
+
+          {/* Vital Cards Grid */}
+          <div className="grid grid-cols-1 gap-4">
+            <VitalCard
+              type="heartRate"
+              value={heartRate ?? "—"}
+              unit="BPM"
+              status={hrStatus}
+            />
+            <VitalCard
+              type="spo2"
+              value={spo2 ?? "—"}
+              unit="%"
+              status={spo2Status}
+            />
+            <VitalCard
+              type="respiratory"
+              value={respirationRate ?? "—"}
+              unit="RPM"
+              status={respStatus}
+            />
+          </div>
+
+          {/* Timestamp */}
+          <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground py-2">
+            <div className="flex items-center gap-1">
+              <Calendar className="w-3 h-3" />
+              <span>Today</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Clock className="w-3 h-3" />
+              <span>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+            </div>
+          </div>
+
+          {/* Next Steps Guidance */}
+          <NextStepsCard
             riskLevel={riskLevel}
-            onSave={() => navigate("/dashboard")}
+            onSave={() => { resetScan(); navigate("/dashboard"); }}
             onShare={() => setShowShareModal(true)}
-            onRescan={() => navigate("/pre-scan")}
+            onRescan={() => resetScan()}
           />
         </div>
-        
-        {/* Action buttons */}
-        <div className="p-4 pb-8 space-y-3">
-          <Button onClick={() => navigate("/dashboard")} fullWidth className="btn-ripple">
-            <Save className="w-5 h-5 mr-2" />
-            Save Reading
-          </Button>
-          <Button 
-            variant="outline" 
-            onClick={() => navigate("/history")} 
+
+        {/* Bottom Actions */}
+        <div className="mt-6 space-y-3 pb-4">
+          <Button
+            onClick={() => { resetScan(); navigate("/dashboard"); }}
             fullWidth
-            className="btn-ripple"
+            className="shadow-md"
           >
-            <History className="w-5 h-5 mr-2" />
+            <Save className="w-4 h-4 mr-2" />
+            Save to Health Log
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => navigate("/history")}
+            fullWidth
+          >
+            <History className="w-4 h-4 mr-2" />
             View History
           </Button>
         </div>
       </div>
-      
-      {/* Share Modal - NEW */}
+
+      {/* Share Modal Overlay */}
       {showShareModal && (
-        <ShareModal 
-          reading={reading}
+        <ShareModal
+          reading={{
+            heartRate: heartRate || 0,
+            spo2: spo2 || 0,
+            respiratory: respirationRate || 0,
+            riskLevel: riskLevel,
+            timestamp: new Date(),
+          }}
           onClose={() => setShowShareModal(false)}
-          onShareWhatsApp={() => {
-            // Would open WhatsApp share
-            setShowShareModal(false);
-          }}
-          onExportPDF={() => {
-            // Would generate PDF
-            setShowShareModal(false);
-          }}
-          onSendTelemedicine={() => {
-            // Would send to telemedicine
-            setShowShareModal(false);
-          }}
         />
       )}
-      
-      {/* Emergency Banner - NEW (demo: triggered on critical readings) */}
-      {showEmergency && (
-        <EmergencyBanner 
-          onCallEmergency={() => {
-            // Would open dialer
-            setShowEmergency(false);
-          }}
-          onLocateClinic={() => {
-            // Would open maps
-            setShowEmergency(false);
-          }}
-          onRescan={() => {
-            navigate("/pre-scan");
-            setShowEmergency(false);
-          }}
-          onDismiss={() => setShowEmergency(false)}
-        />
-      )}
-    </MobileFrame>
+    </div>
   );
 };
 

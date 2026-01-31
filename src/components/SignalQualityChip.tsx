@@ -1,17 +1,18 @@
 import { Signal, SignalLow, SignalMedium, SignalHigh } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useVitalsStore } from "@/lib/vitalsStore";
 
 type Quality = "excellent" | "good" | "fair" | "poor";
 
 interface SignalQualityChipProps {
-  quality: Quality;
+  quality?: Quality;
   showLabel?: boolean;
   className?: string;
 }
 
-const qualityConfig: Record<Quality, { 
-  label: string; 
-  color: string; 
+const qualityConfig: Record<Quality, {
+  label: string;
+  color: string;
   bgColor: string;
   bars: number;
 }> = {
@@ -21,9 +22,15 @@ const qualityConfig: Record<Quality, {
   poor: { label: "Poor", color: "text-destructive", bgColor: "bg-destructive/10", bars: 1 },
 };
 
-const SignalQualityChip = ({ quality, showLabel = true, className }: SignalQualityChipProps) => {
-  const config = qualityConfig[quality];
-  
+const SignalQualityChip = ({ quality: propQuality, showLabel = true, className }: SignalQualityChipProps) => {
+  const storeQuality = useVitalsStore((state) => state.signalQuality);
+
+  // Use prop quality if provided, otherwise use store quality
+  const rawQuality = propQuality || storeQuality.toLowerCase();
+  const quality = (rawQuality as Quality) || "poor";
+
+  const config = qualityConfig[quality] || qualityConfig.poor;
+
   return (
     <div className={cn(
       "flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-md",

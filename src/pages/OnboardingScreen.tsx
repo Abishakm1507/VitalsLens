@@ -30,7 +30,7 @@ const slides = [
 const OnboardingScreen = () => {
   const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
-  
+
   const handleNext = () => {
     if (currentSlide < slides.length - 1) {
       setCurrentSlide(currentSlide + 1);
@@ -38,51 +38,50 @@ const OnboardingScreen = () => {
       navigate("/permission");
     }
   };
-  
+
   const slide = slides[currentSlide];
   const Icon = slide.icon;
-  
+
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-[390px] h-[844px] bg-background rounded-[40px] shadow-elevated overflow-hidden relative border-8 border-foreground/10 flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
+      <div className="max-w-lg mx-auto min-h-screen flex flex-col">
         {/* Skip button */}
         <div className="h-11 flex items-center justify-end px-6 pt-4">
-          <button 
+          <button
             onClick={() => navigate("/permission")}
             className="text-muted-foreground text-body hover:text-foreground transition-colors"
           >
             Skip
           </button>
         </div>
-        
+
         {/* Illustration area */}
         <div className="h-[320px] flex items-center justify-center animate-fade-in" key={currentSlide}>
           <div className={`w-48 h-48 rounded-full ${slide.bg} flex items-center justify-center`}>
             <Icon className={`w-24 h-24 ${slide.color}`} strokeWidth={1.5} />
           </div>
         </div>
-        
+
         {/* Content */}
         <div className="flex-1 flex flex-col items-center justify-between px-8 pb-12">
           <div className="text-center animate-slide-up" key={`text-${currentSlide}`}>
             <h2 className="text-section-title text-foreground mb-4">{slide.title}</h2>
             <p className="text-body text-muted-foreground leading-relaxed max-w-[280px]">{slide.description}</p>
           </div>
-          
+
           {/* Pagination */}
           <div className="flex gap-2 py-8">
             {slides.map((_, index) => (
-              <div 
+              <div
                 key={index}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  index === currentSlide 
-                    ? "w-8 bg-primary" 
+                className={`h-2 rounded-full transition-all duration-300 ${index === currentSlide
+                    ? "w-8 bg-primary"
                     : "w-2 bg-muted"
-                }`}
+                  }`}
               />
             ))}
           </div>
-          
+
           {/* CTA */}
           <Button onClick={handleNext} fullWidth>
             {currentSlide < slides.length - 1 ? "Next" : "Get Started"}

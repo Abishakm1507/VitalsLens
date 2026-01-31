@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import MobileFrame from "@/components/MobileFrame";
-import { 
-  ArrowLeft, Wifi, WifiOff, Globe, Moon, Bell, 
+import {
+  ArrowLeft, Wifi, WifiOff, Globe, Moon, Bell,
   Database, Cloud, Shield, ChevronRight, Check
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
@@ -14,13 +13,13 @@ const SettingsScreen = () => {
   const [offlineStorage, setOfflineStorage] = useState(true);
   const [notifications, setNotifications] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
-  
+
   return (
-    <MobileFrame>
-      <div className="h-full flex flex-col">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-lg mx-auto min-h-screen flex flex-col">
         {/* Header */}
         <div className="flex items-center gap-4 p-4">
-          <button 
+          <button
             onClick={() => navigate("/profile")}
             className="w-10 h-10 rounded-xl bg-card flex items-center justify-center shadow-card"
           >
@@ -28,7 +27,7 @@ const SettingsScreen = () => {
           </button>
           <h1 className="text-section-title text-foreground">Settings</h1>
         </div>
-        
+
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-4 pb-8 space-y-6">
           {/* Connectivity section */}
@@ -36,12 +35,12 @@ const SettingsScreen = () => {
             <h2 className="text-caption text-muted-foreground uppercase tracking-wide px-1">
               Connectivity
             </h2>
-            
+
             {/* Low Data Mode - Featured */}
             <div className={cn(
               "rounded-2xl border-2 p-4 space-y-3 transition-all duration-300",
-              lowDataMode 
-                ? "border-secondary bg-secondary/5" 
+              lowDataMode
+                ? "border-secondary bg-secondary/5"
                 : "border-border bg-card"
             )}>
               <div className="flex items-start gap-3">
@@ -68,12 +67,12 @@ const SettingsScreen = () => {
                     Designed for rural and low-connectivity areas. Reduces data usage and enables offline features.
                   </p>
                 </div>
-                <Switch 
-                  checked={lowDataMode} 
+                <Switch
+                  checked={lowDataMode}
                   onCheckedChange={setLowDataMode}
                 />
               </div>
-              
+
               {lowDataMode && (
                 <div className="flex flex-wrap gap-2 pt-2 border-t border-secondary/20">
                   <div className="flex items-center gap-1.5 px-2 py-1 bg-secondary/10 rounded-lg">
@@ -87,7 +86,7 @@ const SettingsScreen = () => {
                 </div>
               )}
             </div>
-            
+
             {/* Offline storage */}
             <div className="flex items-center justify-between p-4 bg-card rounded-xl">
               <div className="flex items-center gap-3">
@@ -99,19 +98,19 @@ const SettingsScreen = () => {
                   <p className="text-caption text-muted-foreground">Store readings locally</p>
                 </div>
               </div>
-              <Switch 
-                checked={offlineStorage} 
+              <Switch
+                checked={offlineStorage}
                 onCheckedChange={setOfflineStorage}
               />
             </div>
           </div>
-          
+
           {/* Preferences */}
           <div className="space-y-3">
             <h2 className="text-caption text-muted-foreground uppercase tracking-wide px-1">
               Preferences
             </h2>
-            
+
             <div className="flex items-center justify-between p-4 bg-card rounded-xl">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
@@ -122,12 +121,12 @@ const SettingsScreen = () => {
                   <p className="text-caption text-muted-foreground">Daily reminders</p>
                 </div>
               </div>
-              <Switch 
-                checked={notifications} 
+              <Switch
+                checked={notifications}
                 onCheckedChange={setNotifications}
               />
             </div>
-            
+
             <div className="flex items-center justify-between p-4 bg-card rounded-xl">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
@@ -138,13 +137,13 @@ const SettingsScreen = () => {
                   <p className="text-caption text-muted-foreground">Reduce eye strain</p>
                 </div>
               </div>
-              <Switch 
-                checked={darkMode} 
+              <Switch
+                checked={darkMode}
                 onCheckedChange={setDarkMode}
               />
             </div>
-            
-            <button 
+
+            <button
               onClick={() => navigate("/user-context")}
               className="w-full flex items-center justify-between p-4 bg-card rounded-xl"
             >
@@ -160,14 +159,14 @@ const SettingsScreen = () => {
               <ChevronRight className="w-5 h-5 text-muted-foreground" />
             </button>
           </div>
-          
+
           {/* Security */}
           <div className="space-y-3">
             <h2 className="text-caption text-muted-foreground uppercase tracking-wide px-1">
               Security
             </h2>
-            
-            <button 
+
+            <button
               onClick={() => navigate("/about")}
               className="w-full flex items-center justify-between p-4 bg-card rounded-xl"
             >
@@ -183,7 +182,7 @@ const SettingsScreen = () => {
               <ChevronRight className="w-5 h-5 text-muted-foreground" />
             </button>
           </div>
-          
+
           {/* Social impact note */}
           <div className="bg-secondary/5 border border-secondary/20 rounded-xl p-4">
             <p className="text-caption text-muted-foreground leading-relaxed text-center">
@@ -192,7 +191,7 @@ const SettingsScreen = () => {
           </div>
         </div>
       </div>
-    </MobileFrame>
+    </div>
   );
 };
 

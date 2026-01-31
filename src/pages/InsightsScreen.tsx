@@ -1,12 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import MobileFrame from "@/components/MobileFrame";
 import BottomNav from "@/components/BottomNav";
 import InsightCard from "@/components/InsightCard";
 import { ArrowLeft, Droplets, Moon, Activity, Apple, Brain, Heart } from "lucide-react";
 
 const InsightsScreen = () => {
   const navigate = useNavigate();
-  
+
   const insights = [
     {
       icon: Droplets,
@@ -45,13 +44,13 @@ const InsightsScreen = () => {
       variant: "info" as const,
     },
   ];
-  
+
   return (
-    <MobileFrame showNav>
-      <div className="h-full flex flex-col">
+    <div className="min-h-screen bg-background pb-24">
+      <div className="max-w-lg mx-auto min-h-screen flex flex-col">
         {/* Header */}
         <div className="flex items-center gap-4 p-4">
-          <button 
+          <button
             onClick={() => navigate("/dashboard")}
             className="w-10 h-10 rounded-xl bg-card flex items-center justify-center shadow-card"
           >
@@ -59,17 +58,17 @@ const InsightsScreen = () => {
           </button>
           <h1 className="text-section-title text-foreground">Health Insights</h1>
         </div>
-        
+
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-4 pb-6">
           <p className="text-body text-muted-foreground mb-6">
             Simple tips to help you maintain healthy vitals. These are general wellness suggestions, not medical advice.
           </p>
-          
+
           <div className="space-y-3">
             {insights.map((insight, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className="animate-slide-up"
                 style={{ animationDelay: `${index * 0.05}s` }}
               >
@@ -79,9 +78,9 @@ const InsightsScreen = () => {
           </div>
         </div>
       </div>
-      
+
       <BottomNav />
-    </MobileFrame>
+    </div>
   );
 };
 

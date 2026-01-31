@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import MobileFrame from "@/components/MobileFrame";
 import BottomNav from "@/components/BottomNav";
 import VitalCard from "@/components/VitalCard";
 import Button from "@/components/Button";
@@ -8,20 +7,20 @@ import { Scan, TrendingUp, Bell, Shield } from "lucide-react";
 
 const DashboardScreen = () => {
   const navigate = useNavigate();
-  
+
   const currentTime = new Date().getHours();
   const greeting = currentTime < 12 ? "Good morning" : currentTime < 18 ? "Good afternoon" : "Good evening";
-  
+
   return (
-    <MobileFrame showNav>
-      <div className="px-4 py-6 space-y-6">
+    <div className="min-h-screen bg-background pb-24">
+      <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between animate-fade-in">
           <div>
             <p className="text-body text-muted-foreground">{greeting}</p>
             <h1 className="text-section-title text-foreground">Your Health</h1>
           </div>
-          <button 
+          <button
             onClick={() => navigate("/alerts")}
             className="w-10 h-10 rounded-xl bg-card flex items-center justify-center shadow-card relative btn-ripple"
           >
@@ -31,7 +30,7 @@ const DashboardScreen = () => {
             </span>
           </button>
         </div>
-        
+
         {/* Last scan info */}
         <div className="card-medical animate-slide-up hover-lift" style={{ animationDelay: '0.1s' }}>
           <div className="flex items-center justify-between">
@@ -45,49 +44,49 @@ const DashboardScreen = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Vital cards grid */}
         <div className="space-y-4">
           <h2 className="text-card-title text-foreground">Current Vitals</h2>
           <div className="grid grid-cols-2 gap-3">
             <div className="hover-lift">
-              <VitalCard 
-                type="heartRate" 
-                value={72} 
-                unit="BPM" 
+              <VitalCard
+                type="heartRate"
+                value={72}
+                unit="BPM"
                 status="normal"
                 onClick={() => navigate("/history")}
               />
             </div>
             <div className="hover-lift">
-              <VitalCard 
-                type="spo2" 
-                value={98} 
-                unit="%" 
+              <VitalCard
+                type="spo2"
+                value={98}
+                unit="%"
                 status="normal"
                 onClick={() => navigate("/history")}
               />
             </div>
           </div>
           <div className="hover-lift">
-            <VitalCard 
-              type="respiratory" 
-              value={16} 
-              unit="breaths/min" 
+            <VitalCard
+              type="respiratory"
+              value={16}
+              unit="breaths/min"
               status="normal"
               onClick={() => navigate("/history")}
             />
           </div>
         </div>
-        
+
         {/* Scan CTA - Updated to go to pre-scan */}
         <div className="animate-slide-up" style={{ animationDelay: '0.2s' }}>
-          <Button onClick={() => navigate("/pre-scan")} fullWidth className="btn-ripple">
+          <Button onClick={() => navigate("/scan")} fullWidth className="btn-ripple">
             <Scan className="w-5 h-5 mr-2" />
             Start New Scan
           </Button>
         </div>
-        
+
         {/* Trust badges - compact version */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
@@ -96,12 +95,12 @@ const DashboardScreen = () => {
           </div>
           <TrustBadges compact />
         </div>
-        
+
         {/* Quick insights */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-card-title text-foreground">Health Tips</h2>
-            <button 
+            <button
               onClick={() => navigate("/insights")}
               className="text-primary text-caption font-medium"
             >
@@ -115,9 +114,9 @@ const DashboardScreen = () => {
           </div>
         </div>
       </div>
-      
+
       <BottomNav />
-    </MobileFrame>
+    </div>
   );
 };
 

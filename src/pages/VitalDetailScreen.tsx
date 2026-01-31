@@ -1,5 +1,4 @@
 import { useNavigate, useParams } from "react-router-dom";
-import MobileFrame from "@/components/MobileFrame";
 import TrendGraph from "@/components/analytics/TrendGraph";
 import VariabilityCard from "@/components/analytics/VariabilityCard";
 import BaselineComparison from "@/components/analytics/BaselineComparison";
@@ -39,7 +38,7 @@ const vitalConfig = {
 const VitalDetailScreen = () => {
   const navigate = useNavigate();
   const { type } = useParams<{ type: VitalType }>();
-  
+
   const vitalType = (type || "heartRate") as VitalType;
   const config = vitalConfig[vitalType];
   const VitalIcon = config.icon;
@@ -71,11 +70,11 @@ const VitalDetailScreen = () => {
   ];
 
   return (
-    <MobileFrame>
-      <div className="h-full flex flex-col">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-lg mx-auto min-h-screen flex flex-col">
         {/* Header */}
         <div className="flex items-center gap-3 p-4">
-          <button 
+          <button
             onClick={() => navigate("/analytics")}
             className="w-10 h-10 rounded-xl bg-card flex items-center justify-center shadow-card btn-ripple"
           >
@@ -155,7 +154,7 @@ const VitalDetailScreen = () => {
         {/* Compliance Footer */}
         <ComplianceFooter compact />
       </div>
-    </MobileFrame>
+    </div>
   );
 };
 
