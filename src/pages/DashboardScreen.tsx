@@ -4,12 +4,29 @@ import VitalCard from "@/components/VitalCard";
 import Button from "@/components/Button";
 import TrustBadges from "@/components/TrustBadges";
 import { Scan, TrendingUp, Bell, Shield } from "lucide-react";
+import { useVitalsStore } from "@/lib/vitalsStore";
 
 const DashboardScreen = () => {
   const navigate = useNavigate();
+  const { history } = useVitalsStore();
+
+  // Get latest scan
+  const latestScan = history.length > 0 ? history[0] : null;
 
   const currentTime = new Date().getHours();
   const greeting = currentTime < 12 ? "Good morning" : currentTime < 18 ? "Good afternoon" : "Good evening";
+
+  // Format date helper
+  const formatDate = (timestamp: number) => {
+    const date = new Date(timestamp);
+    const today = new Date();
+    const isToday = date.getDate() === today.getDate() &&
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear();
+
+    const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return isToday ? `Today, ${timeStr}` : `${date.toLocaleDateString()} ${timeStr}`;
+  };
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -36,11 +53,16 @@ const DashboardScreen = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-caption text-muted-foreground">Last scan</p>
-              <p className="text-card-title text-foreground">Today, 9:30 AM</p>
+              <p className="text-card-title text-foreground">
+                {latestScan ? formatDate(latestScan.timestamp) : "No scans yet"}
+              </p>
             </div>
             <div className="flex items-center gap-1 text-success">
               <TrendingUp className="w-4 h-4" />
-              <span className="text-caption font-medium">All Normal</span>
+              <span className="text-caption font-medium">
+                {latestScan ? "All Normal" : "Start a scan"}
+                {/* Logic for assessment can be improved later */}
+              </span>
             </div>
           </div>
         </div>
@@ -48,35 +70,44 @@ const DashboardScreen = () => {
         {/* Vital cards grid */}
         <div className="space-y-4">
           <h2 className="text-card-title text-foreground">Current Vitals</h2>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="hover-lift">
-              <VitalCard
-                type="heartRate"
-                value={72}
-                unit="BPM"
-                status="normal"
-                onClick={() => navigate("/history")}
-              />
+          {latestScan ? (
+            <>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="hover-lift">
+                  <VitalCard
+                    type="heartRate"
+                    value={latestScan.heartRate}
+                    unit="BPM"
+                    status="normal"
+                    onClick={() => navigate("/history")}
+                  />
+                </div>
+                <div className="hover-lift">
+                  <VitalCard
+                    type="spo2"
+                    value={latestScan.spo2}
+                    unit="%"
+                    status="normal"
+                    onClick={() => navigate("/history")}
+                  />
+                </div>
+              </div>
+              <div className="hover-lift">
+                <VitalCard
+                  type="respiratory"
+                  value={latestScan.respirationRate}
+                  unit="breaths/min"
+                  status="normal"
+                  onClick={() => navigate("/history")}
+                />
+              </div>
+            </>
+          ) : (
+            <div className="p-8 text-center bg-muted/20 rounded-2xl border border-dashed border-border">
+              <p className="text-muted-foreground">No vital data available yet.</p>
+              <Button variant="ghost" onClick={() => navigate("/scan")} className="mt-2 text-primary">Scan Now</Button>
             </div>
-            <div className="hover-lift">
-              <VitalCard
-                type="spo2"
-                value={98}
-                unit="%"
-                status="normal"
-                onClick={() => navigate("/history")}
-              />
-            </div>
-          </div>
-          <div className="hover-lift">
-            <VitalCard
-              type="respiratory"
-              value={16}
-              unit="breaths/min"
-              status="normal"
-              onClick={() => navigate("/history")}
-            />
-          </div>
+          )}
         </div>
 
         {/* Scan CTA - Updated to go to pre-scan */}

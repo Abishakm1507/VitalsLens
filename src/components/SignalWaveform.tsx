@@ -2,9 +2,10 @@ import { useEffect, useRef } from "react";
 
 interface SignalWaveformProps {
     className?: string;
+    data?: number[];
 }
 
-const SignalWaveform = ({ className }: SignalWaveformProps) => {
+const SignalWaveform = ({ className, data = [] }: SignalWaveformProps) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
@@ -13,37 +14,69 @@ const SignalWaveform = ({ className }: SignalWaveformProps) => {
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
-        let animationFrame: number;
-        let offset = 0;
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        const draw = () => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.beginPath();
-            ctx.strokeStyle = "#3b82f6"; // Tailwind blue-500
-            ctx.lineWidth = 2;
+        // Config
+        ctx.strokeStyle = "#ef4444"; // Red for heart beat
+        ctx.lineWidth = 2;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.beginPath();
 
-            for (let x = 0; x < canvas.width; x++) {
-                const y = canvas.height / 2 + Math.sin((x + offset) * 0.05) * 20 + Math.sin((x + offset) * 0.02) * 10;
-                if (x === 0) {
-                    ctx.moveTo(x, y);
-                } else {
-                    ctx.lineTo(x, y);
-                }
-            }
+        const w = canvas.width;
+        const h = canvas.height;
 
+        if (!data || data.length < 2) {
+            // Flatline if no data
+            ctx.moveTo(0, h / 2);
+            ctx.lineTo(w, h / 2);
+            ctx.strokeStyle = "#374151"; // Gray
             ctx.stroke();
-            offset += 2;
-            animationFrame = requestAnimationFrame(draw);
-        };
+            return;
+        }
 
-        draw();
+        // Render waveform
+        // Map data index to X (spread across width)
+        // Map data value (0-1) to Y (height)
 
-        return () => cancelAnimationFrame(animationFrame);
-    }, []);
+        const step = w / (data.length - 1);
+
+        data.forEach((val, i) => {
+            const x = i * step;
+            // Invert Y because canvas 0 is top. Value 1 should be top (0), Value 0 bottom (h).
+            // Actually, let's keep some padding.
+            const padding = 5;
+            const y = h - padding - (val * (h - 2 * padding));
+
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        });
+
+        ctx.stroke();
+
+        // Add "Scan Line" gradient effect
+        const gradient = ctx.createLinearGradient(0, 0, w, 0);
+        gradient.addColorStop(0, "rgba(239, 68, 68, 0.1)");
+        gradient.addColorStop(1, "rgba(239, 68, 68, 0.8)");
+        ctx.save();
+        ctx.globalCompositeOperation = "source-atop";
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, w, h);
+        ctx.restore();
+
+    }, [data]);
 
     return (
-        <div className={`w-full h-24 bg-card rounded-xl border border-border overflow-hidden ${className}`}>
-            <canvas ref={canvasRef} width={400} height={100} className="w-full h-full" />
+        <div className={`w-full h-full bg-card rounded-xl border border-border overflow-hidden relative ${className}`}>
+            {/* Grid background */}
+            <div className="absolute inset-0 opacity-10 pointer-events-none"
+                style={{
+                    backgroundImage: "linear-gradient(#444 1px, transparent 1px), linear-gradient(90deg, #444 1px, transparent 1px)",
+                    backgroundSize: "20px 20px"
+                }}
+            />
+            <canvas ref={canvasRef} width={400} height={128} className="w-full h-full relative z-10" />
         </div>
     );
 };

@@ -8,97 +8,97 @@
 
 @layer base {
   :root {
-    /* Core backgrounds */
-    --background: 210 17% 98%;
-    --foreground: 209 63% 16%;
-    
-    /* Card surfaces */
+    /* Core backgrounds - Enhanced contrast */
+    --background: 210 20% 97%;
+    --foreground: 209 70% 12%;
+
+    /* Card surfaces - Brighter white */
     --card: 0 0% 100%;
-    --card-foreground: 209 63% 16%;
-    
+    --card-foreground: 209 70% 12%;
+
     --popover: 0 0% 100%;
-    --popover-foreground: 209 63% 16%;
-    
-    /* Medical Blue - Primary */
-    --primary: 207 97% 55%;
+    --popover-foreground: 209 70% 12%;
+
+    /* Medical Blue - Primary - More vibrant */
+    --primary: 207 95% 52%;
     --primary-foreground: 0 0% 100%;
-    
-    /* Soft Green - Secondary */
-    --secondary: 161 74% 62%;
-    --secondary-foreground: 209 63% 16%;
-    
-    /* Muted elements */
-    --muted: 206 26% 91%;
-    --muted-foreground: 209 22% 49%;
-    
+
+    /* Soft Green - Secondary - More saturated */
+    --secondary: 161 80% 58%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Muted elements - Better contrast */
+    --muted: 206 30% 88%;
+    --muted-foreground: 209 30% 42%;
+
     /* Accent */
-    --accent: 207 97% 95%;
-    --accent-foreground: 207 97% 45%;
-    
-    /* Status colors */
-    --success: 145 63% 49%;
+    --accent: 207 95% 96%;
+    --accent-foreground: 207 95% 42%;
+
+    /* Status colors - Enhanced visibility */
+    --success: 145 70% 45%;
     --success-foreground: 0 0% 100%;
-    
-    --warning: 45 96% 59%;
-    --warning-foreground: 209 63% 16%;
-    
-    --destructive: 9 80% 50%;
+
+    --warning: 38 95% 52%;
+    --warning-foreground: 0 0% 100%;
+
+    --destructive: 9 85% 52%;
     --destructive-foreground: 0 0% 100%;
-    
-    /* Borders & inputs */
-    --border: 206 26% 91%;
-    --input: 206 26% 91%;
-    --ring: 207 97% 55%;
-    
+
+    /* Borders & inputs - Subtle but visible */
+    --border: 206 30% 88%;
+    --input: 206 30% 88%;
+    --ring: 207 95% 52%;
+
     --radius: 1rem;
-    
-    /* Vital-specific colors */
-    --heart-rate: 0 84% 60%;
-    --spo2: 207 97% 55%;
-    --respiratory: 161 74% 62%;
-    
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(207 97% 55%), hsl(207 97% 45%));
-    --gradient-success: linear-gradient(135deg, hsl(145 63% 49%), hsl(161 74% 52%));
-    --gradient-scan: linear-gradient(180deg, transparent 0%, hsl(207 97% 55% / 0.1) 100%);
-    
-    /* Shadows */
-    --shadow-card: 0 2px 8px hsl(209 63% 16% / 0.06);
-    --shadow-elevated: 0 8px 24px hsl(209 63% 16% / 0.1);
-    --shadow-button: 0 4px 12px hsl(207 97% 55% / 0.3);
+
+    /* Vital-specific colors - More vibrant */
+    --heart-rate: 0 88% 58%;
+    --spo2: 207 95% 52%;
+    --respiratory: 161 80% 58%;
+
+    /* Gradients - More pronounced */
+    --gradient-primary: linear-gradient(135deg, hsl(207 95% 52%), hsl(207 95% 42%));
+    --gradient-success: linear-gradient(135deg, hsl(145 70% 45%), hsl(161 80% 50%));
+    --gradient-scan: linear-gradient(180deg, transparent 0%, hsl(207 95% 52% / 0.12) 100%);
+
+    /* Shadows - More prominent */
+    --shadow-card: 0 2px 12px hsl(209 70% 12% / 0.08);
+    --shadow-elevated: 0 8px 32px hsl(209 70% 12% / 0.14);
+    --shadow-button: 0 4px 16px hsl(207 95% 52% / 0.35);
   }
 
   .dark {
     --background: 209 63% 8%;
     --foreground: 210 17% 98%;
-    
+
     --card: 209 50% 12%;
     --card-foreground: 210 17% 98%;
-    
+
     --popover: 209 50% 12%;
     --popover-foreground: 210 17% 98%;
-    
+
     --primary: 207 97% 55%;
     --primary-foreground: 0 0% 100%;
-    
+
     --secondary: 161 74% 52%;
     --secondary-foreground: 0 0% 100%;
-    
+
     --muted: 209 40% 20%;
     --muted-foreground: 209 22% 60%;
-    
+
     --accent: 207 50% 20%;
     --accent-foreground: 207 97% 70%;
-    
+
     --success: 145 63% 49%;
     --success-foreground: 0 0% 100%;
-    
+
     --warning: 45 96% 59%;
     --warning-foreground: 209 63% 16%;
-    
+
     --destructive: 9 80% 50%;
     --destructive-foreground: 0 0% 100%;
-    
+
     --border: 209 40% 20%;
     --input: 209 40% 20%;
     --ring: 207 97% 55%;
@@ -117,81 +117,82 @@
 }
 
 @layer components {
-  /* App title - 28px SemiBold */
+
+  /* App title - 28px Bold */
   .text-app-title {
-    @apply text-[28px] font-semibold leading-tight tracking-tight;
+    @apply text-[28px] font-bold leading-tight tracking-tight;
   }
-  
-  /* Section title - 20px SemiBold */
+
+  /* Section title - 20px Bold */
   .text-section-title {
-    @apply text-xl font-semibold leading-tight;
+    @apply text-xl font-bold leading-tight;
   }
-  
-  /* Card title - 16px Medium */
+
+  /* Card title - 16px Semibold */
   .text-card-title {
-    @apply text-base font-medium;
-  }
-  
-  /* Body text - 14px Regular */
-  .text-body {
-    @apply text-sm font-normal;
-  }
-  
-  /* Caption - 12px Regular */
-  .text-caption {
-    @apply text-xs font-normal;
-  }
-  
-  /* Vital values - 32px Bold */
-  .text-vital {
-    @apply text-[32px] font-bold leading-none tracking-tight;
-  }
-  
-  /* Button text - 16px SemiBold */
-  .text-button {
     @apply text-base font-semibold;
   }
-  
-  /* Card styling */
+
+  /* Body text - 14px Medium */
+  .text-body {
+    @apply text-sm font-medium;
+  }
+
+  /* Caption - 12px Medium */
+  .text-caption {
+    @apply text-xs font-medium;
+  }
+
+  /* Vital values - 40px Bold - More prominent */
+  .text-vital {
+    @apply text-[40px] font-bold leading-none tracking-tight;
+  }
+
+  /* Button text - 16px Bold */
+  .text-button {
+    @apply text-base font-bold;
+  }
+
+  /* Card styling - Enhanced shadow */
   .card-medical {
-    @apply bg-card rounded-2xl p-4;
+    @apply bg-card rounded-2xl p-5 border border-border/50;
     box-shadow: var(--shadow-card);
   }
-  
-  /* Button primary */
+
+  /* Button primary - More prominent */
   .btn-primary {
-    @apply h-[52px] rounded-[14px] bg-primary text-primary-foreground text-button px-6;
+    @apply h-[56px] rounded-[16px] bg-primary text-primary-foreground text-button px-6;
     box-shadow: var(--shadow-button);
   }
-  
-  /* Vital card */
+
+  /* Vital card - Enhanced */
   .vital-card {
-    @apply card-medical flex flex-col gap-2 min-h-[120px];
+    @apply card-medical flex flex-col gap-3 min-h-[140px];
   }
-  
+
   /* Status badges */
   .status-normal {
     @apply bg-success/10 text-success;
   }
-  
+
   .status-warning {
     @apply bg-warning/10 text-warning;
   }
-  
+
   .status-critical {
     @apply bg-destructive/10 text-destructive;
   }
-  
+
   /* ======================================
      MICRO-INTERACTIONS - MANDATORY
      ====================================== */
-  
+
   /* Button press ripple effect */
   .btn-ripple {
     position: relative;
     overflow: hidden;
   }
-  
+
   .btn-ripple::after {
     content: '';
     position: absolute;
@@ -207,186 +208,216 @@
     opacity: 0;
     transition: transform 0.4s, opacity 0.8s;
   }
-  
+
   .btn-ripple:active::after {
     transform: scale(0, 0);
     opacity: 0.3;
     transition: 0s;
   }
-  
+
   /* Card hover lift effect */
   .hover-lift {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
-  
+
   .hover-lift:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-elevated);
   }
-  
+
   .hover-lift:active {
     transform: translateY(0);
   }
-  
+
   /* Count-up animation for numbers */
   .count-up {
     animation: count-up 0.6s ease-out forwards;
   }
-  
+
   @keyframes count-up {
     from {
       opacity: 0;
       transform: translateY(10px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
     }
   }
-  
+
   /* Scale in animation */
   .animate-scale-in {
     animation: scale-in 0.3s ease-out forwards;
   }
-  
+
   @keyframes scale-in {
     from {
       opacity: 0;
       transform: scale(0.9);
     }
+
     to {
       opacity: 1;
       transform: scale(1);
     }
   }
-  
+
   /* Demo mode pulse */
   .demo-mode-pulse {
     animation: demo-pulse 2s ease-in-out infinite;
   }
-  
+
   @keyframes demo-pulse {
-    0%, 100% {
+
+    0%,
+    100% {
       opacity: 1;
     }
+
     50% {
       opacity: 0.85;
     }
   }
-  
+
   /* Emergency pulse */
   .emergency-pulse {
     animation: emergency-pulse 1s ease-in-out infinite;
   }
-  
+
   @keyframes emergency-pulse {
-    0%, 100% {
+
+    0%,
+    100% {
       transform: scale(1);
       box-shadow: 0 0 0 0 hsl(var(--destructive) / 0.4);
     }
+
     50% {
       transform: scale(1.05);
       box-shadow: 0 0 0 8px hsl(var(--destructive) / 0);
     }
   }
-  
+
   /* Pulse animation for scanning */
   .pulse-ring {
     animation: pulse-ring 2s ease-out infinite;
   }
-  
+
   @keyframes pulse-ring {
     0% {
       transform: scale(0.95);
       opacity: 1;
     }
+
     50% {
       transform: scale(1.05);
       opacity: 0.5;
     }
+
     100% {
       transform: scale(0.95);
       opacity: 1;
     }
   }
-  
+
   /* Fade in animation */
   .animate-fade-in {
     animation: fade-in 0.5s ease-out forwards;
   }
-  
+
   @keyframes fade-in {
     from {
       opacity: 0;
       transform: translateY(10px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
     }
   }
-  
+
   /* Slide up animation */
   .animate-slide-up {
     animation: slide-up 0.4s ease-out forwards;
   }
-  
+
   @keyframes slide-up {
     from {
       opacity: 0;
       transform: translateY(20px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
     }
   }
-  
+
   /* Analyzing dots */
   .analyzing-dot {
     animation: analyzing-dot 1.4s ease-in-out infinite;
   }
-  
-  .analyzing-dot:nth-child(1) { animation-delay: 0s; }
-  .analyzing-dot:nth-child(2) { animation-delay: 0.2s; }
-  .analyzing-dot:nth-child(3) { animation-delay: 0.4s; }
-  
+
+  .analyzing-dot:nth-child(1) {
+    animation-delay: 0s;
+  }
+
+  .analyzing-dot:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  .analyzing-dot:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+
   @keyframes analyzing-dot {
-    0%, 80%, 100% {
+
+    0%,
+    80%,
+    100% {
       transform: scale(0.6);
       opacity: 0.4;
     }
+
     40% {
       transform: scale(1);
       opacity: 1;
     }
   }
-  
+
   /* Face oval animation */
   .face-oval {
     animation: face-oval-pulse 2s ease-in-out infinite;
   }
-  
+
   @keyframes face-oval-pulse {
-    0%, 100% {
+
+    0%,
+    100% {
       border-color: hsl(var(--primary) / 0.5);
       box-shadow: 0 0 0 0 hsl(var(--primary) / 0.2);
     }
+
     50% {
       border-color: hsl(var(--primary));
       box-shadow: 0 0 20px 4px hsl(var(--primary) / 0.3);
     }
   }
-  
+
   /* Haptic feedback simulation (visual pulse) */
   .haptic-feedback {
     animation: haptic 0.1s ease-out;
   }
-  
+
   @keyframes haptic {
-    0%, 100% {
+
+    0%,
+    100% {
       transform: scale(1);
     }
+
     50% {
       transform: scale(0.98);
     }

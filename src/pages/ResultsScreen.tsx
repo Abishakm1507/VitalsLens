@@ -144,7 +144,7 @@ const ResultsScreen = () => {
             className="shadow-md"
           >
             <Save className="w-4 h-4 mr-2" />
-            Save to Health Log
+            Done
           </Button>
           <Button
             variant="outline"

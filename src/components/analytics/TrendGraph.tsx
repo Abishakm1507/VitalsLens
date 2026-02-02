@@ -1,11 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, ReferenceLine, Area, ComposedChart } from "recharts";
+import { ScanResult } from "@/lib/vitalsStore";
 
 type TimeRange = "24h" | "7d" | "30d";
 type VitalType = "heartRate" | "spo2" | "respiratory";
 
 interface TrendGraphProps {
   type: VitalType;
+  history: ScanResult[];
   normalRange: { min: number; max: number };
   onRangeChange?: (range: TimeRange) => void;
 }
@@ -16,70 +18,48 @@ const vitalConfig = {
     unit: "BPM",
     color: "hsl(var(--heart-rate))",
     gradientId: "heartRateGradient",
-    storeKey: "heartRate" as keyof HistoryEntry
+    storeKey: "heartRate" as keyof ScanResult
   },
   spo2: {
     label: "SpO₂",
     unit: "%",
     color: "hsl(var(--primary))",
     gradientId: "spo2Gradient",
-    storeKey: "spo2" as keyof HistoryEntry
+    storeKey: "spo2" as keyof ScanResult
   },
   respiratory: {
     label: "Respiratory Rate",
     unit: "breaths/min",
     color: "hsl(var(--secondary))",
     gradientId: "respiratoryGradient",
-    storeKey: "respirationRate" as keyof HistoryEntry
+    storeKey: "respirationRate" as keyof ScanResult
   },
 };
 
-interface HistoryEntry {
-  timestamp: number;
-  heartRate?: number;
-  spo2?: number;
-  respirationRate?: number;
-}
-
-const TrendGraph = ({ type, normalRange, onRangeChange }: TrendGraphProps) => {
+const TrendGraph = ({ type, history, normalRange, onRangeChange }: TrendGraphProps) => {
   const [activeRange, setActiveRange] = useState<TimeRange>("7d");
-  const [data, setData] = useState<Array<{ date: string; value: number }>>([]);
   const config = vitalConfig[type];
 
-  useEffect(() => {
-    // Load history from localStorage
-    const loadHistory = () => {
-      try {
-        const historyJson = localStorage.getItem("vitals_history");
-        if (!historyJson) {
-          setData([]);
-          return;
-        }
+  // Derive chart data from history prop
+  const data = useMemo(() => {
+    if (!history || history.length === 0) return [];
 
-        const history: HistoryEntry[] = JSON.parse(historyJson);
+    const now = Date.now();
+    // Filter by time range
+    let cutoff = now;
+    if (activeRange === "24h") cutoff -= 24 * 60 * 60 * 1000;
+    if (activeRange === "7d") cutoff -= 7 * 24 * 60 * 60 * 1000;
+    if (activeRange === "30d") cutoff -= 30 * 24 * 60 * 60 * 1000;
 
-        // Map history to chart data format
-        const chartData = history
-          .filter(entry => entry[config.storeKey] !== undefined)
-          .map(entry => ({
-            date: new Date(entry.timestamp).toLocaleDateString([], { month: 'short', day: 'numeric' }),
-            value: entry[config.storeKey] as number
-          }))
-          .slice(-10); // Show last 10 readings for now
-
-        setData(chartData);
-      } catch (err) {
-        console.error("Failed to load vitals history:", err);
-        setData([]);
-      }
-    };
-
-    loadHistory();
-
-    // Optional: Add event listener for storage changes
-    window.addEventListener("storage", loadHistory);
-    return () => window.removeEventListener("storage", loadHistory);
-  }, [type, config.storeKey]);
+    return history
+      .filter(entry => entry.timestamp >= cutoff)
+      .filter(entry => entry[config.storeKey] !== undefined)
+      .sort((a, b) => a.timestamp - b.timestamp) // Sort ascending for chart
+      .map(entry => ({
+        date: new Date(entry.timestamp).toLocaleDateString([], { month: 'short', day: 'numeric', hour: activeRange === '24h' ? '2-digit' : undefined }),
+        value: entry[config.storeKey] as number
+      }));
+  }, [history, activeRange, config.storeKey]);
 
   const handleRangeChange = (range: TimeRange) => {
     setActiveRange(range);
@@ -115,8 +95,8 @@ const TrendGraph = ({ type, normalRange, onRangeChange }: TrendGraphProps) => {
               key={range}
               onClick={() => handleRangeChange(range)}
               className={`px-3 py-1.5 rounded-md text-caption font-medium transition-all ${activeRange === range
-                  ? "bg-card text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
                 }`}
             >
               {range}

@@ -18,70 +18,93 @@ const vitalConfig: Record<VitalType, {
   label: string;
   colorClass: string;
   bgClass: string;
+  gradientClass: string;
 }> = {
   heartRate: {
     icon: Heart,
     label: "Heart Rate",
-    colorClass: "text-heartRate",
-    bgClass: "bg-heartRate/10",
+    colorClass: "text-[hsl(var(--heart-rate))]",
+    bgClass: "bg-[hsl(var(--heart-rate)/0.12)]",
+    gradientClass: "from-[hsl(var(--heart-rate)/0.08)] to-transparent",
   },
   spo2: {
     icon: Droplets,
     label: "SpO₂",
-    colorClass: "text-spo2",
-    bgClass: "bg-spo2/10",
+    colorClass: "text-[hsl(var(--spo2))]",
+    bgClass: "bg-[hsl(var(--spo2)/0.12)]",
+    gradientClass: "from-[hsl(var(--spo2)/0.08)] to-transparent",
   },
   respiratory: {
     icon: Wind,
-    label: "Respiratory",
-    colorClass: "text-respiratory",
-    bgClass: "bg-respiratory/10",
+    label: "Respiratory Rate",
+    colorClass: "text-[hsl(var(--respiratory))]",
+    bgClass: "bg-[hsl(var(--respiratory)/0.12)]",
+    gradientClass: "from-[hsl(var(--respiratory)/0.08)] to-transparent",
   },
 };
 
-const statusConfig: Record<Status, { label: string; className: string }> = {
-  normal: { label: "Normal", className: "status-normal" },
-  warning: { label: "Elevated", className: "status-warning" },
-  critical: { label: "High", className: "status-critical" },
+const statusConfig: Record<Status, { label: string; className: string; dotColor: string }> = {
+  normal: {
+    label: "Normal",
+    className: "bg-success/15 text-success border border-success/25",
+    dotColor: "bg-success"
+  },
+  warning: {
+    label: "Elevated",
+    className: "bg-warning/15 text-warning border border-warning/25",
+    dotColor: "bg-warning"
+  },
+  critical: {
+    label: "Critical",
+    className: "bg-destructive/15 text-destructive border border-destructive/25",
+    dotColor: "bg-destructive"
+  },
 };
 
-const VitalCard = ({ 
-  type, 
-  value, 
-  unit, 
-  status = "normal", 
+const VitalCard = ({
+  type,
+  value,
+  unit,
+  status = "normal",
   compact = false,
-  onClick 
+  onClick
 }: VitalCardProps) => {
   const config = vitalConfig[type];
   const statusInfo = statusConfig[status];
   const Icon = config.icon;
-  
+
   return (
-    <div 
+    <div
       className={cn(
-        "vital-card cursor-pointer hover:shadow-elevated transition-shadow duration-200",
-        compact && "min-h-[100px]"
+        "vital-card cursor-pointer hover:shadow-elevated transition-all duration-300 relative overflow-hidden group",
+        compact && "min-h-[120px] p-4"
       )}
       onClick={onClick}
     >
-      <div className="flex items-center justify-between">
-        <div className={cn("p-2 rounded-xl", config.bgClass)}>
-          <Icon className={cn("w-6 h-6", config.colorClass)} />
+      {/* Subtle gradient background */}
+      <div className={cn("absolute inset-0 bg-gradient-to-br opacity-40", config.gradientClass)} />
+
+      {/* Content */}
+      <div className="relative z-10">
+        <div className="flex items-center justify-between mb-3">
+          <div className={cn("p-3 rounded-2xl transition-transform group-hover:scale-110 duration-300", config.bgClass)}>
+            <Icon className={cn("w-7 h-7", config.colorClass)} strokeWidth={2.5} />
+          </div>
+          <span className={cn(
+            "px-3 py-1.5 rounded-full text-caption font-bold flex items-center gap-1.5",
+            statusInfo.className
+          )}>
+            <span className={cn("w-1.5 h-1.5 rounded-full", statusInfo.dotColor)} />
+            {statusInfo.label}
+          </span>
         </div>
-        <span className={cn(
-          "px-2 py-1 rounded-full text-caption font-medium",
-          statusInfo.className
-        )}>
-          {statusInfo.label}
-        </span>
-      </div>
-      
-      <div className="flex-1 flex flex-col justify-end">
-        <span className="text-muted-foreground text-caption">{config.label}</span>
-        <div className="flex items-baseline gap-1">
-          <span className={cn("text-vital", config.colorClass)}>{value}</span>
-          <span className="text-muted-foreground text-body">{unit}</span>
+
+        <div className="flex-1 flex flex-col justify-end space-y-1">
+          <span className="text-muted-foreground text-caption uppercase tracking-wide">{config.label}</span>
+          <div className="flex items-baseline gap-2">
+            <span className={cn("text-vital", config.colorClass)}>{value}</span>
+            <span className="text-muted-foreground text-body font-semibold">{unit}</span>
+          </div>
         </div>
       </div>
     </div>

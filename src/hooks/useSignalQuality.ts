@@ -72,15 +72,18 @@ function captureStubbedROIData(t: number): SignalSample {
     const rrHz = 0.25; // ~15 RPM
 
     // Base intensity with subtle PPG oscillations
-    const base = 120;
+    const baseR = 115;  // Red channel slightly lower
+    const baseG = 120;  // Green channel (strongest PPG)
+    const baseB = 125;  // Blue channel slightly higher
+
     const pulse = Math.sin(2 * Math.PI * hrHz * t) * 0.8;
     const breath = Math.sin(2 * Math.PI * rrHz * t) * 1.5;
     const noise = (Math.random() - 0.5) * 0.5;
 
     return {
         t,
-        r: base + pulse * 0.6 + breath * 1.2 + noise,
-        g: base + pulse + breath + noise, // Green channel has strongest PPG signal
-        b: base + pulse * 0.4 + breath * 0.8 + noise
+        r: baseR + pulse * 1.0 + breath * 1.2 + noise,  // Red has stronger pulse
+        g: baseG + pulse + breath + noise,               // Green channel has strongest PPG signal
+        b: baseB + pulse * 0.5 + breath * 0.8 + noise   // Blue has weaker pulse
     };
 }

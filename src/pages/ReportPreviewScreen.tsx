@@ -1,27 +1,68 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import ReportPreview from "@/components/analytics/ReportPreview";
 import Button from "@/components/Button";
 import { ArrowLeft, Download, Share2, MessageCircle, Mail, X } from "lucide-react";
 import { toast } from "sonner";
+import { useVitalsStore } from "@/lib/vitalsStore";
 
 const ReportPreviewScreen = () => {
   const navigate = useNavigate();
   const [showShareOptions, setShowShareOptions] = useState(false);
+  const { history } = useVitalsStore();
 
-  // Mock report data
-  const reportData = {
-    dateRange: { start: "Jan 20, 2026", end: "Jan 27, 2026" },
-    overallStatus: "stable" as const,
-    riskLevel: "low" as const,
-    confidence: 94,
-    vitals: [
-      { name: "Heart Rate", average: 72, min: 65, max: 85, unit: "BPM", deviations: 2 },
-      { name: "SpO₂", average: 96, min: 94, max: 99, unit: "%", deviations: 3 },
-      { name: "Respiratory Rate", average: 15, min: 12, max: 18, unit: "br/min", deviations: 1 },
-    ],
-    aiInterpretation: "Your vital signs have remained largely stable over the past week. Heart rate shows normal variability consistent with daily activities. Two instances of SpO₂ readings below the normal range were observed, possibly related to body position or temporary breathing patterns. Overall health indicators suggest no immediate concerns, but continued monitoring is recommended for optimal health awareness.",
-  };
+  const reportData = useMemo(() => {
+    if (!history || history.length === 0) {
+      return {
+        dateRange: { start: "-", end: "-" },
+        overallStatus: "stable" as const,
+        riskLevel: "low" as const,
+        confidence: 0,
+        vitals: [
+          { name: "Heart Rate", average: 0, min: 0, max: 0, unit: "BPM", deviations: 0 },
+          { name: "SpO₂", average: 0, min: 0, max: 0, unit: "%", deviations: 0 },
+          { name: "Respiratory Rate", average: 0, min: 0, max: 0, unit: "br/min", deviations: 0 },
+        ],
+        aiInterpretation: "No data available to generate a report.",
+      };
+    }
+
+    const timestamps = history.map(h => h.timestamp);
+    const start = new Date(Math.min(...timestamps)).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    const end = new Date(Math.max(...timestamps)).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+
+    const calcStats = (key: "heartRate" | "spo2" | "respirationRate", minNormal: number, maxNormal: number) => {
+      const values = history.map(h => h[key]);
+      const sum = values.reduce((a, b) => a + b, 0);
+      const avg = Math.round(sum / values.length);
+      const min = Math.min(...values);
+      const max = Math.max(...values);
+      const deviations = values.filter(v => v < minNormal || v > maxNormal).length;
+      return { average: avg, min, max, deviations };
+    };
+
+    const hrStats = calcStats("heartRate", 60, 100);
+    const spo2Stats = calcStats("spo2", 95, 100);
+    const respStats = calcStats("respirationRate", 12, 20);
+
+    const totalDeviations = hrStats.deviations + spo2Stats.deviations + respStats.deviations;
+    let riskLevel: "low" | "moderate" | "high" = "low";
+    if (totalDeviations > 2) riskLevel = "moderate";
+    if (totalDeviations > 5) riskLevel = "high";
+
+    return {
+      dateRange: { start, end },
+      overallStatus: (riskLevel === "high" ? "critical" : riskLevel === "moderate" ? "needs-attention" : "stable") as "stable" | "needs-attention" | "critical",
+      riskLevel,
+      confidence: 94, // Placeholder for now, or calc based on signal quality
+      vitals: [
+        { name: "Heart Rate", average: hrStats.average, min: hrStats.min, max: hrStats.max, unit: "BPM", deviations: hrStats.deviations },
+        { name: "SpO₂", average: spo2Stats.average, min: spo2Stats.min, max: spo2Stats.max, unit: "%", deviations: spo2Stats.deviations },
+        { name: "Respiratory Rate", average: respStats.average, min: respStats.min, max: respStats.max, unit: "br/min", deviations: respStats.deviations },
+      ],
+      aiInterpretation: `Based on ${history.length} scans from ${start} to ${end}, your vitals are ${riskLevel === 'low' ? 'generally stable' : 'showing some variability'}. ${totalDeviations > 0 ? `${totalDeviations} readings were outside standard healthy ranges.` : 'All readings are within normal ranges.'} Continued monitoring is recommended.`
+    };
+  }, [history]);
 
   const handleExportPDF = () => {
     toast.success("Generating PDF...", {
@@ -58,7 +99,7 @@ const ReportPreviewScreen = () => {
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-4 pb-6">
-          <ReportPreview />
+          <ReportPreview data={reportData} />
         </div>
 
         {/* Actions */}

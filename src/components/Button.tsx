@@ -8,29 +8,29 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   fullWidth?: boolean;
 }
 
-const Button = ({ 
-  children, 
-  variant = "primary", 
+const Button = ({
+  children,
+  variant = "primary",
   size = "default",
   fullWidth = false,
   className,
-  ...props 
+  ...props
 }: ButtonProps) => {
-  const baseStyles = "inline-flex items-center justify-center font-semibold transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98]";
-  
+  const baseStyles = "inline-flex items-center justify-center font-bold transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none active:scale-[0.96] hover:scale-[1.02]";
+
   const variants = {
-    primary: "bg-primary text-primary-foreground shadow-button hover:bg-primary/90",
-    secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-    ghost: "text-foreground hover:bg-muted",
-    outline: "border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground",
+    primary: "bg-primary text-primary-foreground shadow-button hover:shadow-elevated hover:bg-primary/95",
+    secondary: "bg-secondary text-secondary-foreground shadow-card hover:shadow-elevated hover:bg-secondary/90",
+    ghost: "text-foreground hover:bg-muted/80",
+    outline: "border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground shadow-sm hover:shadow-button",
   };
-  
+
   const sizes = {
-    sm: "h-10 px-4 text-sm rounded-xl",
-    default: "h-[52px] px-6 text-base rounded-[14px]",
-    lg: "h-14 px-8 text-lg rounded-2xl",
+    sm: "h-11 px-5 text-sm rounded-xl",
+    default: "h-[56px] px-6 text-base rounded-[16px]",
+    lg: "h-16 px-8 text-lg rounded-2xl",
   };
-  
+
   return (
     <button
       className={cn(

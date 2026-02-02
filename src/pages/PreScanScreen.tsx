@@ -5,7 +5,8 @@ import { useVitalsStore } from "@/lib/vitalsStore";
 import { useScanFlowStore } from "@/lib/scanFlowStore";
 import { useCamera } from "@/hooks/useCamera";
 import { useFaceMesh } from "@/hooks/useFaceMesh";
-import { useSignalQuality } from "@/hooks/useSignalQuality";
+import { useFaceValidation } from "@/hooks/useFaceValidation";
+// import { useSignalQuality } from "@/hooks/useSignalQuality"; // Removed
 
 // UI Components
 import Button from "@/components/Button";
@@ -30,38 +31,45 @@ const PreScanScreen = () => {
   // Initialize hooks
   const { error: cameraError } = useCamera(videoRef);
   const [landmarks, setLandmarks] = useState<NormalizedLandmarkList | null>(null);
+  const [isFacePositioned, setIsFacePositioned] = useState(false);
   useFaceMesh(videoRef, (l) => setLandmarks(l));
 
-  // Start monitoring signal quality
-  useSignalQuality();
+  // Check validation
+  const validation = useFaceValidation({
+    videoRef,
+    landmarks,
+    enabled: true
+  });
 
-  // Map store signal quality to component quality types
-  const mappedQuality = signalQuality.toLowerCase() as "poor" | "fair" | "good";
+  const isReady = validation.isValid;
 
-  // Readiness checks status
+  // Dynamic button text
+  const buttonText = isReady
+    ? "Start Scan"
+    : validation.errors.length > 0
+      ? validation.errors[0]
+      : "Align face in oval";
+
   const checks = [
     {
       id: "lighting",
-      label: "Lighting Conditions",
-      status: mappedQuality === "good" ? "ready" : mappedQuality === "fair" ? "warning" : "pending",
+      label: "Lighting",
+      status: validation.checks.lighting === "optimal" ? "ready" : "warning",
       icon: Sun
     },
     {
       id: "face",
       label: "Face Visibility",
-      status: mappedQuality === "good" ? "ready" : "pending",
+      status: validation.checks.faceDetected && validation.checks.faceCentered ? "ready" : "pending",
       icon: ShieldCheck
     },
     {
       id: "position",
-      label: "Stable Positioning",
-      status: mappedQuality !== "poor" ? "ready" : "pending",
+      label: "Stability",
+      status: validation.checks.isStable ? "ready" : "warning",
       icon: Video
     },
   ] as const;
-
-  const isReady = signalQuality === "Good";
-  const buttonText = isReady ? "Start Scan" : "Adjust lighting / position";
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center">
@@ -83,11 +91,22 @@ const PreScanScreen = () => {
         {/* Camera Preview Section */}
         <div className="relative mb-8 px-4 flex justify-center">
           <CameraFeed videoRef={videoRef} className="w-full max-w-[320px]" />
-          <FaceOverlay landmarks={landmarks} />
+          <FaceOverlay
+            landmarks={landmarks}
+            onFacePositionChange={setIsFacePositioned}
+          />
 
           <div className="absolute top-4 right-8">
-            <SignalQualityChip quality={mappedQuality} />
+            <SignalQualityChip quality={validation.isValid ? "good" : "poor"} />
           </div>
+
+          {/* Face positioning instruction */}
+          {landmarks && !isFacePositioned && !cameraError && (
+            <div className="absolute inset-x-8 bottom-4 bg-primary/95 border border-primary backdrop-blur-md p-4 rounded-2xl text-center animate-pulse">
+              <p className="text-sm text-primary-foreground font-bold">Position Your Face</p>
+              <p className="text-xs text-primary-foreground/90 mt-1">Keep your face within the oval guide</p>
+            </div>
+          )}
 
           {cameraError && (
             <div className="absolute inset-x-8 top-1/2 -translate-y-1/2 bg-destructive/10 border border-destructive/20 backdrop-blur-md p-4 rounded-2xl text-center">

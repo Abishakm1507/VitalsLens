@@ -18,11 +18,23 @@ import SignalWaveform from "@/components/SignalWaveform";
 const AnalyzingScreen = () => {
   const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement>(null);
-  const { signalQuality } = useVitalsStore();
+  const { signalQuality, heartRate, spo2, respirationRate, addReading } = useVitalsStore();
   const setStage = useScanFlowStore((state) => state.setStage);
-  const { remainingTime } = useRPPG({ duration: 30 });
-  const { error: cameraError } = useCamera(videoRef);
   const [landmarks, setLandmarks] = useState<NormalizedLandmarkList | null>(null);
+  const [isFacePositioned, setIsFacePositioned] = useState(false);
+
+  // Ref for video element
+  // const videoRef = useRef<HTMLVideoElement>(null); // Already defined above
+
+  // Camera management
+  const { error: cameraError } = useCamera(videoRef);
+
+  // Start rPPG processing with real data
+  const { remainingTime, liveSignal } = useRPPG({
+    duration: 30,
+    videoRef,
+    landmarks
+  });
   useFaceMesh(videoRef, (l) => setLandmarks(l));
 
   const progress = ((30 - remainingTime) / 30) * 100;
@@ -30,9 +42,15 @@ const AnalyzingScreen = () => {
 
   useEffect(() => {
     if (remainingTime === 0) {
+      addReading({
+        heartRate: heartRate || 0,
+        spo2: spo2 || 0,
+        respirationRate: respirationRate || 0,
+        signalQuality: signalQuality
+      });
       setStage("done");
     }
-  }, [remainingTime, setStage]);
+  }, [remainingTime, setStage, heartRate, spo2, respirationRate, signalQuality, addReading]);
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center">
@@ -50,7 +68,10 @@ const AnalyzingScreen = () => {
         <div className="relative flex flex-col items-center">
           <div className="relative w-full max-w-[320px]">
             <CameraFeed videoRef={videoRef} className="z-0" />
-            <FaceOverlay landmarks={landmarks} />
+            <FaceOverlay
+              landmarks={landmarks}
+              onFacePositionChange={setIsFacePositioned}
+            />
 
             {/* Progress Ring Overlay */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
@@ -65,6 +86,14 @@ const AnalyzingScreen = () => {
                 </div>
               </ProgressRing>
             </div>
+
+            {/* Face positioning warning - More prominent */}
+            {landmarks && !isFacePositioned && !cameraError && (
+              <div className="absolute inset-x-4 bottom-4 bg-warning/95 border-2 border-warning backdrop-blur-md p-3 rounded-2xl text-center z-20 animate-pulse shadow-elevated">
+                <p className="text-sm text-warning-foreground font-bold">⚠️ Position Your Face</p>
+                <p className="text-xs text-warning-foreground/90 mt-0.5">Keep your face within the oval guide</p>
+              </div>
+            )}
           </div>
 
           {cameraError && (
@@ -81,23 +110,24 @@ const AnalyzingScreen = () => {
         </div>
 
         {/* Live Metrics & Waveform */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between px-2">
+        {/* Real-time Signal Graph */}
+        <div className="bg-card/50 backdrop-blur-sm border border-border rounded-2xl p-4 mb-6 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Live Signal</span>
             <ConfidenceIndicator confidence={remainingTime > 15 ? 85 : 92} size="sm" />
           </div>
+          <SignalWaveform data={liveSignal} className="h-32" />
+        </div>
 
-          <SignalWaveform />
-
-          <div className="grid grid-cols-2 gap-4 mt-2">
-            <div className="bg-muted/50 rounded-xl p-3 flex flex-col items-center">
-              <span className="text-[10px] text-muted-foreground uppercase">Stability</span>
-              <span className="text-sm font-bold text-foreground">High</span>
-            </div>
-            <div className="bg-muted/50 rounded-xl p-3 flex flex-col items-center">
-              <span className="text-[10px] text-muted-foreground uppercase">Light</span>
-              <span className="text-sm font-bold text-foreground">Constant</span>
-            </div>
+        {/* Live Metrics */}
+        <div className="grid grid-cols-2 gap-4 mt-2">
+          <div className="bg-muted/50 rounded-xl p-3 flex flex-col items-center">
+            <span className="text-[10px] text-muted-foreground uppercase">Stability</span>
+            <span className="text-sm font-bold text-foreground">High</span>
+          </div>
+          <div className="bg-muted/50 rounded-xl p-3 flex flex-col items-center">
+            <span className="text-[10px] text-muted-foreground uppercase">Light</span>
+            <span className="text-sm font-bold text-foreground">Constant</span>
           </div>
         </div>
 

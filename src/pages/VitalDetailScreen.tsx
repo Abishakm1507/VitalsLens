@@ -1,4 +1,6 @@
+import { useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useVitalsStore } from "@/lib/vitalsStore";
 import TrendGraph from "@/components/analytics/TrendGraph";
 import VariabilityCard from "@/components/analytics/VariabilityCard";
 import BaselineComparison from "@/components/analytics/BaselineComparison";
@@ -43,20 +45,35 @@ const VitalDetailScreen = () => {
   const config = vitalConfig[vitalType];
   const VitalIcon = config.icon;
 
-  // Mock trend data
-  const trendData = [
-    { date: "Mon", value: vitalType === "heartRate" ? 72 : vitalType === "spo2" ? 97 : 15 },
-    { date: "Tue", value: vitalType === "heartRate" ? 75 : vitalType === "spo2" ? 96 : 14 },
-    { date: "Wed", value: vitalType === "heartRate" ? 68 : vitalType === "spo2" ? 94 : 16 },
-    { date: "Thu", value: vitalType === "heartRate" ? 71 : vitalType === "spo2" ? 97 : 15 },
-    { date: "Fri", value: vitalType === "heartRate" ? 74 : vitalType === "spo2" ? 98 : 14 },
-    { date: "Sat", value: vitalType === "heartRate" ? 82 : vitalType === "spo2" ? 96 : 17 },
-    { date: "Sun", value: vitalType === "heartRate" ? 70 : vitalType === "spo2" ? 97 : 15 },
-  ];
+  // Get data from store
+  const { history } = useVitalsStore();
 
-  // Mock baseline data
-  const baselineValue = vitalType === "heartRate" ? 71 : vitalType === "spo2" ? 97 : 15;
-  const currentValue = vitalType === "heartRate" ? 74 : vitalType === "spo2" ? 96 : 15;
+  // Transform history to trend data
+  const trendData = useMemo(() => {
+    if (!history || history.length === 0) return [];
+
+    // Sort ascending by time
+    const sorted = [...history].sort((a, b) => a.timestamp - b.timestamp);
+    // vitalType key map: respiratory -> respirationRate
+    const key = vitalType === "respiratory" ? "respirationRate" : vitalType;
+
+    return sorted.map(h => ({
+      date: new Date(h.timestamp).toLocaleDateString(undefined, { weekday: 'short' }),
+      value: h[key] || 0
+    })).slice(-7); // Last 7 readings
+  }, [history, vitalType]);
+
+  // Calculate baseline (average) and current value
+  const { baselineValue, currentValue } = useMemo(() => {
+    if (!history || history.length === 0) return { baselineValue: 0, currentValue: 0 };
+
+    const key = vitalType === "respiratory" ? "respirationRate" : vitalType;
+    const values = history.map(h => h[key] as number);
+    const current = values[0]; // history is unshifted (newest first)
+    const avg = Math.round(values.reduce((a, b) => a + b, 0) / values.length);
+
+    return { baselineValue: avg, currentValue: current };
+  }, [history, vitalType]);
 
   // Mock correlations
   const correlations = vitalType === "heartRate" ? [
@@ -93,6 +110,7 @@ const VitalDetailScreen = () => {
           {/* Trend Graph */}
           <TrendGraph
             type={vitalType}
+            history={history}
             normalRange={config.normalRange}
           />
 

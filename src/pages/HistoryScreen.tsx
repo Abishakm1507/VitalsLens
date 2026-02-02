@@ -1,40 +1,11 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import BottomNav from "@/components/BottomNav";
 import { ArrowLeft, Calendar, Heart, Droplets, Wind, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
+import { useVitalsStore } from "@/lib/vitalsStore";
 
 type VitalType = "heartRate" | "spo2" | "respiratory";
-
-const mockData = {
-  heartRate: [
-    { day: "Mon", value: 72 },
-    { day: "Tue", value: 75 },
-    { day: "Wed", value: 68 },
-    { day: "Thu", value: 74 },
-    { day: "Fri", value: 71 },
-    { day: "Sat", value: 69 },
-    { day: "Sun", value: 73 },
-  ],
-  spo2: [
-    { day: "Mon", value: 97 },
-    { day: "Tue", value: 98 },
-    { day: "Wed", value: 97 },
-    { day: "Thu", value: 98 },
-    { day: "Fri", value: 96 },
-    { day: "Sat", value: 98 },
-    { day: "Sun", value: 97 },
-  ],
-  respiratory: [
-    { day: "Mon", value: 15 },
-    { day: "Tue", value: 16 },
-    { day: "Wed", value: 14 },
-    { day: "Thu", value: 15 },
-    { day: "Fri", value: 16 },
-    { day: "Sat", value: 14 },
-    { day: "Sun", value: 15 },
-  ],
-};
 
 const vitalConfig = {
   heartRate: {
@@ -67,11 +38,35 @@ const HistoryScreen = () => {
   const navigate = useNavigate();
   const [selectedVital, setSelectedVital] = useState<VitalType>("heartRate");
   const [period, setPeriod] = useState<"week" | "month">("week");
+  const { history } = useVitalsStore();
 
   const config = vitalConfig[selectedVital];
-  const data = mockData[selectedVital];
-  const latestValue = data[data.length - 1].value;
-  const previousValue = data[data.length - 2].value;
+
+  // Transform history to chart data
+  const data = useMemo(() => {
+    if (!history || history.length === 0) return [];
+
+    // Sort by timestamp ascending for the chart
+    const sortedHistory = [...history].sort((a, b) => a.timestamp - b.timestamp);
+
+    // Convert to chart format
+    // Map vital type key 'respiratory' to history key 'respirationRate'
+    const vitalKey = selectedVital === 'respiratory' ? 'respirationRate' : selectedVital;
+
+    return sortedHistory.map(item => {
+      const date = new Date(item.timestamp);
+      return {
+        timestamp: item.timestamp, // Keep for potential sorting/usage
+        day: date.toLocaleDateString(undefined, { weekday: 'short' }), // "Mon", "Tue"
+        fullDate: date.toLocaleDateString(),
+        time: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        value: item[vitalKey] || 0
+      };
+    }).slice(-10); // Take last 10 readings for cleanliness
+  }, [history, selectedVital]);
+
+  const latestValue = data.length > 0 ? data[data.length - 1].value : 0;
+  const previousValue = data.length > 1 ? data[data.length - 2].value : latestValue;
   const trend = latestValue > previousValue ? "up" : latestValue < previousValue ? "down" : "stable";
 
   const TrendIcon = trend === "up" ? TrendingUp : trend === "down" ? TrendingDown : Minus;
