@@ -103,9 +103,11 @@ function evaluateSignalQuality(samples: SignalSample[]): "Poor" | "Fair" | "Good
     const mean = gValues.reduce((a, b) => a + b, 0) / gValues.length;
     const variance = gValues.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / gValues.length;
 
-    if (variance < 0.05) return "Poor"; // No signal variation
-    if (variance > 50) return "Fair";   // Too much noise/motion
-    return "Good";
+    // Adjusted thresholds for stubbed physiological signals
+    // Variance typically ranges from 0.5-3.0 for simulated data
+    if (variance < 0.3) return "Poor";   // Very low signal variation
+    if (variance > 10) return "Fair";    // Too much noise/motion
+    return "Good";                       // Optimal signal detected
 }
 
 /**

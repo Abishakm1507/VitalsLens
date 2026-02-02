@@ -58,7 +58,7 @@ const ReportPreviewScreen = () => {
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-4 pb-6">
-          <ReportPreview {...reportData} />
+          <ReportPreview />
         </div>
 
         {/* Actions */}

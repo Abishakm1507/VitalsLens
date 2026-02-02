@@ -93,7 +93,6 @@ const VitalDetailScreen = () => {
           {/* Trend Graph */}
           <TrendGraph
             type={vitalType}
-            data={trendData}
             normalRange={config.normalRange}
           />
 

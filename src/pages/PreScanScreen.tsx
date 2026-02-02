@@ -5,6 +5,7 @@ import { useVitalsStore } from "@/lib/vitalsStore";
 import { useScanFlowStore } from "@/lib/scanFlowStore";
 import { useCamera } from "@/hooks/useCamera";
 import { useFaceMesh } from "@/hooks/useFaceMesh";
+import { useSignalQuality } from "@/hooks/useSignalQuality";
 
 // UI Components
 import Button from "@/components/Button";
@@ -18,12 +19,21 @@ const PreScanScreen = () => {
   const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement>(null);
   const signalQuality = useVitalsStore((state) => state.signalQuality);
+  const reset = useVitalsStore((state) => state.reset);
   const setStage = useScanFlowStore((state) => state.setStage);
+
+  // Reset vitals on mount
+  useEffect(() => {
+    reset();
+  }, [reset]);
 
   // Initialize hooks
   const { error: cameraError } = useCamera(videoRef);
   const [landmarks, setLandmarks] = useState<NormalizedLandmarkList | null>(null);
   useFaceMesh(videoRef, (l) => setLandmarks(l));
+
+  // Start monitoring signal quality
+  useSignalQuality();
 
   // Map store signal quality to component quality types
   const mappedQuality = signalQuality.toLowerCase() as "poor" | "fair" | "good";
